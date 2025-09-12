@@ -30,11 +30,11 @@ pub fn read_env(file : &str) -> Vec<EnvKeys> {
 
     let mut reader : Vec<EnvKeys> = Vec::new();
 
-    for line in contents.split('\n') {
+    for line in contents.split("\n") {
 
         println!("{line}");
 
-        let try_spread = line.split_once('=');
+        let try_spread = line.split_once("=");
 
         let spread : (&str, &str) = match try_spread {
             Some(value) => value,
@@ -46,4 +46,20 @@ pub fn read_env(file : &str) -> Vec<EnvKeys> {
     }
 
     return reader;
+}
+
+pub fn append_env(filename: &str, contents: &str) {
+    let existing : String = match fs::read_to_string(filename) {
+        Ok(value) => value,
+        Err(_) => panic!("File with provided name does not exist!")
+    };
+
+    let appended : String = format!("{existing}\n{contents}");
+
+    match fs::write(filename, appended) {
+        Ok(_) => return,
+        Err(_) => panic!("Could not read to file! Program does not have enough permission or file doesn't exist!")
+    };
+
+
 }
