@@ -16,6 +16,7 @@ impl EnvKeys {
     pub fn from(key: &str, value: &str) -> EnvKeys {
         return EnvKeys { key: key.to_string() , value: value.to_string() };
     }
+
 }
 
 pub fn get_args() -> Vec<String> {
@@ -70,4 +71,16 @@ pub fn append_env(filename: &str, contents: &str) {
     };
 
 
+}
+
+pub fn search_env(key: &str, file : &str) -> Option<EnvKeys> {
+    let keys : Vec<EnvKeys> = read_env(file);
+
+    for matching in keys {
+        if matching.key == key {
+            return Some(matching);
+        }
+    }
+
+    return None;
 }

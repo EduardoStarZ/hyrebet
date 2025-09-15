@@ -31,4 +31,13 @@ mod tests {
         assert_eq!((expected.key == contents.key), (expected.value == contents.value)); 
         
     }
+
+    #[test]
+    fn test_env() {
+        let desired_key : &str = "test";
+
+        let key = env::search_env("test", ".testenv").unwrap();
+    
+        assert_eq!(desired_key, key.key.as_str());
+    }
 }
