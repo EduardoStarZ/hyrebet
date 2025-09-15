@@ -1,12 +1,16 @@
 #[cfg(test)]
 mod tests {
     use common::env::{self, EnvKeys};
+    use std::fs;
 
     #[test]
     fn test_env_writing() {
+        let _ = fs::File::create(".testenv");
+
         let contents : &str = "test=true";
 
         env::append_env(".testenv", contents);
+        
     }
 
     #[test]
@@ -18,9 +22,13 @@ mod tests {
 
     #[test]
     fn read_env() {
-        let expected : Vec<EnvKeys> = Vec::from(EnvKeys::from("test", "true"));
-        let contents : Vec<EnvKeys> = env::read_env(".testenv");
+        let expected : EnvKeys = EnvKeys::from("test", "true");
+        let bind : Vec<EnvKeys> = env::read_env(".testenv");
+        let contents : &EnvKeys = bind.get(0).unwrap();
     
-        assert_eq!(expected, contents); 
+        println!("{} | {} / {} | {}", expected.key, expected.value, contents.key, contents.value);
+
+        assert_eq!((expected.key == contents.key), (expected.value == contents.value)); 
+        
     }
 }

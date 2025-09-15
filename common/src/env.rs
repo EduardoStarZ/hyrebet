@@ -9,11 +9,11 @@ pub struct EnvKeys {
 }
 
 impl EnvKeys {
-    fn new() -> EnvKeys {
+    pub fn new() -> EnvKeys {
         return EnvKeys { key: String::new(), value: String::new() };
     }
 
-    fn from(key: &str, value: &str) -> EnvKeys {
+    pub fn from(key: &str, value: &str) -> EnvKeys {
         return EnvKeys { key: key.to_string() , value: value.to_string() };
     }
 }
@@ -23,29 +23,37 @@ pub fn get_args() -> Vec<String> {
 }
 
 pub fn read_env(file : &str) -> Vec<EnvKeys> {
-    let contents : String = match fs::read_to_string(file) {
+    let byte_contents : Vec<u8> = match fs::read(file) {
         Ok(value) => value,
-        Err(_) => panic!("Provided file either does not exist or does not contain valid UTF-8!")
+        Err(err) => panic!("{err}")
     };
 
-    let mut reader : Vec<EnvKeys> = Vec::new();
+    let contents : &str = match str::from_utf8(&(*byte_contents)) {
+        Ok(value) => value,
+        Err(err) => panic!("{err}")
+    };
 
-    for line in contents.split("\n") {
+    let sliced : Vec<&str> = contents.split("\n").collect::<Vec<&str>>();
 
-        println!("{line}");
+    let mut result : Vec<EnvKeys> = Vec::new();
 
-        let try_spread = line.split_once("=");
+    for item in sliced {
 
-        let spread : (&str, &str) = match try_spread {
-            Some(value) => value,
-            None => panic!("Given environment does not follow required format!")
-        };
+        if !item.trim().is_empty() {
 
-        reader.push(EnvKeys::from(spread.0, spread.1));
+            let binds : [&str;2] = match item
+                .split("=")
+                .collect::<Vec<&str>>()
+                .first_chunk::<2>() {
+                    Some(value) => *value,
+                    None => panic!("Key has invalid signature")
+                };
 
+            result.push(EnvKeys::from(binds[0], binds[1])); 
+        }
     }
 
-    return reader;
+    return result;
 }
 
 pub fn append_env(filename: &str, contents: &str) {

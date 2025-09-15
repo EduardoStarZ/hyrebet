@@ -1,9 +1,5 @@
-use common::crypto::hash;
+use common::env::read_env;
 
 fn main() {
-    common::test(); 
-    let test : String = String::from("bolo");
-
-    let hashed : String = hash(test);
-    println!("{hashed}");
+    read_env(".testenv");
 }
