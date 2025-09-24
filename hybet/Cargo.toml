@@ -1,0 +1,13 @@
+[package]
+name = "hybet"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+common = {path = "../common"}
+ntex = {version = "2.16.0", features = ["tokio"]}
+ntex-session = "2.0.0"
+r2d2 = "0.8.10"
+serde = "1.0.219"
+serde_json = "1.0.143"

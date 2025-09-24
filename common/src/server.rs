@@ -20,4 +20,5 @@ impl Server {
     pub fn from(id: u8, name: &'static str, ip: Ipv4Addr, port: u16) -> Server {
         return Server {id, name, ip, port};
     }
+
 }
