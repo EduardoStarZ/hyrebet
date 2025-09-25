@@ -1,0 +1,11 @@
+[package]
+name = "static-fs"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+common = {path = "../common"}
+ntex = {version = "2.16.0", features = ["tokio"]}
+ntex-session = "2.0.0"
+ntex-files = "2.1.0"
