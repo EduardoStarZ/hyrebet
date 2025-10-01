@@ -1,7 +1,9 @@
+use common;
 use std::net::Ipv4Addr;
 use common::server::{Server, ServerID};
 use ntex::web;
 use auth::routes;
+use common::middleware::SayHi;
 
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
@@ -12,6 +14,7 @@ async fn main() -> std::io::Result<()> {
         web::App::new()
             .service(routes::check_token)
             .service(routes::get_token)
+            .wrap(SayHi)
     });
 
     server.bind((options.ip, options.port))?.run().await
