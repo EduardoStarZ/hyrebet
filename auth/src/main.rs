@@ -1,11 +1,11 @@
 use std::net::Ipv4Addr;
-use common::server::Server;
+use common::server::{Server, ServerID};
 use ntex::web;
 
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
 
-    let options : Server = Server::from(0, "Auth", Ipv4Addr::new(127, 0, 0, 1), 8080);
+    let options : Server = Server::from(ServerID::Main, Ipv4Addr::new(127, 0, 0, 1), 3000);
 
     let server = web::HttpServer::new(move || {
         web::App::new()

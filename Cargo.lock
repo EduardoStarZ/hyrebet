@@ -780,6 +780,7 @@ dependencies = [
  "chrono",
  "colored",
  "common",
+ "ctrlc",
  "diesel",
  "jsonwebtoken",
  "libsqlite3-sys",

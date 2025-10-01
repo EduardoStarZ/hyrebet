@@ -1,15 +1,48 @@
-use common::env::read_env;
-use common::server::Server;
-use ntex::web::{self, service};
+use std::process::{Child, Command};
+use ctrlc;
+use std::sync::mpsc;
+use std::thread;
 
-#[ntex::main]
-async fn main() -> std::io::Result<()> {
-    let server = web::HttpServer::new(move || {
-        web::App::new()
-            
+fn main() {
+    let (tx, rx) = mpsc::channel::<()>();
+
+    ctrlc::set_handler(move || {
+        println!("Shutdown initiated, killing programs");
+
+        tx.send(()).expect("Could not send information");
+        
+    }).expect("Error setting up ctrlc");
+
+    let worker = thread::spawn( move || {
+
+        let mut auth : Child = match Command::new("./bin/auth").spawn() {
+            Ok(value) => value,
+            Err(_) => panic!("Binary for auth not built! ")
+        };
+
+        let mut static_fs : Child = match Command::new("./bin/static-fs").spawn() {
+            Ok(value) => value,
+            Err(_) => panic!("Binary for static filesystem not built! ")
+        };
+
+        let mut api : Child = match Command::new("./bin/api").spawn() {
+            Ok(value) => value,
+            Err(_) => panic!("Binary for API not built! ")
+        };
+
+        loop {
+           if rx.try_recv().is_ok() {
+                api.kill().unwrap();
+                auth.kill().unwrap();
+                static_fs.kill().unwrap();
+
+                break;
+           } 
+        }
+
     });
 
-    server.bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    worker.join().expect("Could not execute paralel thread");
+    println!("Program ended successfully"); 
+
 }
