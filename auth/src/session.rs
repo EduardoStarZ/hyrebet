@@ -1,3 +1,4 @@
+use common::env::get_hash;
 use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header, Validation, decode};
 use serde::{Serialize, Deserialize};
 
@@ -30,7 +31,12 @@ impl ClaimChecker for Claims {
     }
 }
 
-pub fn create_token(info: LoginInfo, hash: &str ) -> LoginToken {
+pub fn create_token(info: LoginInfo) -> LoginToken {
+
+    let hash = match get_hash() {
+        Some(value) => value,
+        None => panic!("Value for hash not found during execution!")
+    };
     
  let claims : Claims = Claims { sub : info.username, exp: (chrono::Utc::now() + chrono::Duration::hours(3)).timestamp() as usize};
         let mut token : String = match encode(&Header::default(), &claims, &EncodingKey::from_secret(hash.as_ref())) {                               
@@ -47,7 +53,13 @@ pub fn create_token(info: LoginInfo, hash: &str ) -> LoginToken {
         return LoginToken(Some(token));
 }
 
-pub fn check_token_val(tokenized_info : &LoginToken, hash : &str) -> bool {
+pub fn check_token_val(tokenized_info : &LoginToken) -> bool {
+     let hash = match get_hash() {
+        Some(value) => value,
+        None => panic!("Value for hash not found during execution!")
+    };
+
+
     let token : String = match &tokenized_info.0 {
         Some(value) => value.to_string(),
         None => return false

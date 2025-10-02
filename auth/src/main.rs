@@ -2,11 +2,17 @@ use common;
 use std::net::Ipv4Addr;
 use common::server::{Server, ServerID};
 use ntex::web;
-use auth::routes;
+use auth::{hash, routes};
 use common::middleware::SayHi;
+use common::env::{self, set_hash};
 
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
+
+    match env::get_hash() {
+        Some(_) => (),
+        None => set_hash(hash::create_hash())
+    };
 
     let options : Server = Server::from(ServerID::Main, Ipv4Addr::new(127, 0, 0, 1), 3000);
 
