@@ -23,3 +23,7 @@ ctrlc = "3.5.0"
 [profile.dev]
 lto=false
 codegen-units = 2
+opt-level = 3
+
+[workspace]
+members = ["api", "auth", "static-fs"]
