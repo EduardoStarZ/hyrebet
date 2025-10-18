@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
             .service(routes::check_token)
             .service(routes::get_token)
             .wrap(SayHi)
+            .state(options.clone())
     });
 
     server.bind((options.ip, options.port))?.run().await

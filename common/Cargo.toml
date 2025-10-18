@@ -8,3 +8,4 @@ sha2 = "0.10.9"
 ntex = {version = "2.16.0", features = ["tokio"]}
 ntex-session = "2.0.0"
 r2d2 = "0.8.10"
+serde = "1.0.228"

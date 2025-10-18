@@ -1,6 +1,7 @@
 use std::net::{Ipv4Addr};
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum ServerID {
     Unknown,
     Main,
@@ -8,6 +9,7 @@ pub enum ServerID {
     Static
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Server {
     pub id : ServerID,
     pub ip : Ipv4Addr,
