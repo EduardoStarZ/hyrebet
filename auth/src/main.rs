@@ -3,7 +3,7 @@ use std::net::Ipv4Addr;
 use common::server::{Server, ServerID};
 use ntex::web;
 use auth::{hash, routes};
-use common::middleware::SayHi;
+use common::middleware::CheckLogin;
 use common::env::{self, set_hash};
 
 #[ntex::main]
@@ -18,9 +18,7 @@ async fn main() -> std::io::Result<()> {
 
     let server = web::HttpServer::new(move || {
         web::App::new()
-            .service(routes::check_token)
-            .service(routes::get_token)
-            .wrap(SayHi)
+            .wrap(CheckLogin)
             .state(options.clone())
     });
 

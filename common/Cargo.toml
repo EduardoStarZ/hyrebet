@@ -11,3 +11,4 @@ r2d2 = "0.8.10"
 serde = "1.0.228"
 diesel = {version = "2.2.0", features = ["postgres", "chrono"]}
 chrono = "0.4.42"
+jsonwebtoken = "9.3.1"

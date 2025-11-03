@@ -1,8 +1,8 @@
 use diesel::prelude::*;
-use std::env;
 use chrono::{Local, NaiveDateTime};
 use crate::schema::users;
 use crate::schema::users::dsl::*;
+use crate::env;
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = users)]
@@ -20,7 +20,7 @@ struct NewUser {
 }
 
 fn establish_connection_to_user_db () -> PgConnection {
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL environment variable must be set!");
+    let database_url = env::get_value("DATABASE_URL").unwrap();
 
     return PgConnection::establish(&database_url).expect("Invalid DATABASE_URL parameter!");
 }

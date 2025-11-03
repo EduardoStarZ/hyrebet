@@ -1,54 +1,51 @@
-use crate::session::{self, LoginToken};
+use common::session::{self, LoginToken};
 use common::server::Server;
-use ntex::{http::{HttpMessage, Response}, web};
+use cookie::Cookie;
+use ntex::{http::HttpMessage, web};
 use reqwest;
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
+use common::database;
 
-#[web::get("/get-token")]
-pub async fn get_token() -> web::HttpResponse {
+#[derive(Serialize, Deserialize)]
+struct UserForm {
+    username: String,
+    password: String
+}
+
+pub fn get_token(username : &String, password : &String) -> String {
     let token = session::create_token(session::LoginInfo {
-        username: "memememe".to_string(),
-        password: "asdasdasd".to_string(),
+        username: username.clone(),
+        password: password.clone()
     })
     .0
     .unwrap();
 
-    return web::HttpResponse::PermanentRedirect()
-        .cookie(("Auth", token))
-        .finish();
+    return token;
 }
 
-#[web::get("/check-token")]
-pub async fn check_token(request: web::HttpRequest) -> web::HttpResponse {
-    let cookie = match request.cookie("Auth") {
-        Some(value) => value,
-        None => return web::HttpResponse::BadRequest().finish(),
-    };
-
-    if !session::check_token_val(&LoginToken(Some(cookie.value().to_string()))) {
+pub async fn check_token(cookie: Option<String>) -> web::HttpResponse {
+    if !session::check_token_val(&LoginToken(cookie)) {
         return web::HttpResponse::Unauthorized().finish();
     }
 
     return web::HttpResponse::Ok().finish();
 }
 
-#[derive(Deserialize)]
-struct LoginInfo {
-    pub username: String,
-    pub password: String
-}
-
 #[web::post("/login")]
-pub async fn login(request: web::HttpRequest, form: web::types::Form<LoginInfo>, server : web::types::State<Server>) -> web::HttpResponse {
+pub async fn login(request: web::HttpRequest, form: web::types::Form<UserForm>, server : web::types::State<Server>) -> web::HttpResponse {
 
     let cookie = match request.cookie("Auth") {
         Some(value) => return web::HttpResponse::Ok().finish(),
         None => ()
     };
 
+    get_token(&form.username, &form.password);    
+
     let route : String = format!("http://{}:{}/get-token", server.ip, server.port);
     
-    let response = match reqwest::get(route).await {
+    let form_data = [("username", form.username.clone()), ("password", form.password.clone())];
+
+    let response = match reqwest::Client::new().post(route).form(&form_data).send().await {
         Ok(resp) => resp,
         Err(err) => return web::HttpResponse::BadRequest().finish()
     };

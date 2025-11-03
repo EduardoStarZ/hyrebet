@@ -4,7 +4,7 @@ mkdir -p dev
 
 cargo build --all --target-dir=build
 
-cp --update=all build/release/hyrebet dev/
-cp --update=all build/release/auth dev/
-cp --update=all build/release/api dev/
-cp --update=all build/release/static-fs dev/
+cp --update=all build/debug/hyrebet dev/
+cp --update=all build/debug/auth dev/
+cp --update=all build/debug/api dev/
+cp --update=all build/debug/static-fs dev/

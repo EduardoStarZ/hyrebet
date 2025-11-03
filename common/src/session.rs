@@ -1,4 +1,4 @@
-use common::env::get_hash;
+use crate::env::get_hash;
 use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header, Validation, decode};
 use serde::{Serialize, Deserialize};
 
