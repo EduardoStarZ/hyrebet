@@ -14,7 +14,7 @@ async fn main() -> std::io::Result<()> {
         None => set_hash(hash::create_hash())
     };
 
-    let options : Server = Server::from(ServerID::Main, Ipv4Addr::new(127, 0, 0, 1), 3000);
+    let options : Server = Server::from(ServerID::Auth, Ipv4Addr::new(127, 0, 0, 1), 3000);
 
     let server = web::HttpServer::new(move || {
         web::App::new()

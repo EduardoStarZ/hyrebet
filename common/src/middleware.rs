@@ -33,16 +33,14 @@ where
         req: WebRequest<Err>,
         ctx: ServiceCtx<'_, Self>,
     ) -> Result<Self::Response, Self::Error> {
-        // We only need to hook into the `start` for this middleware.
 
-        let cookie = req.cookie("Auth"); // Change this to see the change in outcome in the browser
+        let cookie = req.cookie("Auth");
         
         println!("{}", req.uri());
 
         if cookie.is_some() && session::check_token_val(&LoginToken(Some(cookie.unwrap().value().to_string()))) {
             ctx.call(&self.service, req).await
         } else {
-
             match req.path() {
                 "/register" => {
                     ctx.call(&self.service, req).await
@@ -56,8 +54,7 @@ where
                         .header(http::header::LOCATION, "/login")
                         .finish()
                         .into_body(),
-                ))
-
+                    ))
                 }
             }
         }
