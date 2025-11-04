@@ -16,6 +16,7 @@ pub struct User {
 #[diesel(table_name = users)]
 struct NewUser {
     name : String,
+    password : String,
     join_date : NaiveDateTime
 }
 
@@ -25,7 +26,7 @@ fn establish_connection_to_user_db () -> PgConnection {
     return PgConnection::establish(&database_url).expect("Invalid DATABASE_URL parameter!");
 }
 
-pub fn create_user(username : String) {
+pub fn create_user(username : String, user_pswd : String) {
     let mut connection = establish_connection_to_user_db();
 
     let equal_usernames = users
@@ -40,7 +41,7 @@ pub fn create_user(username : String) {
         return;
     }
 
-    let new_user = NewUser{name: username, join_date: Local::now().naive_local()};
+    let new_user = NewUser{name: username, password: user_pswd, join_date: Local::now().naive_local()};
 
     diesel::insert_into(users::table)
         .values(new_user)

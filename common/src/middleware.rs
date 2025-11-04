@@ -36,20 +36,29 @@ where
         // We only need to hook into the `start` for this middleware.
 
         let cookie = req.cookie("Auth"); // Change this to see the change in outcome in the browser
+        
+        println!("{}", req.uri());
 
         if cookie.is_some() && session::check_token_val(&LoginToken(Some(cookie.unwrap().value().to_string()))) {
             ctx.call(&self.service, req).await
         } else {
-            // Don't forward to /login if we are already on /login
-            if req.path() == "/login" {
-                ctx.call(&self.service, req).await
-            } else {
-                Ok(req.into_response(
+
+            match req.path() {
+                "/register" => {
+                    ctx.call(&self.service, req).await
+                },
+                "/login" => {
+                    ctx.call(&self.service, req).await
+                },
+                _ => {
+                    Ok(req.into_response(
                     HttpResponse::Found()
                         .header(http::header::LOCATION, "/login")
                         .finish()
                         .into_body(),
                 ))
+
+                }
             }
         }
     }
