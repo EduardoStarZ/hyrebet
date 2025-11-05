@@ -19,6 +19,10 @@ async fn main() -> std::io::Result<()> {
     let server = web::HttpServer::new(move || {
         web::App::new()
             .wrap(CheckLogin)
+            .service(routes::login)
+            .service(routes::register)
+            .service(routes::login_redirect)
+            .service(routes::register_redirect)
             .state(options.clone())
     });
 

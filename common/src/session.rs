@@ -9,7 +9,10 @@ pub struct LoginInfo {
 }
 
 #[derive(Serialize)]
-pub struct LoginToken(pub Option<String>);
+pub enum LoginToken {
+    Value(String),
+    None
+}
 
 
 #[derive(Serialize, Deserialize)]
@@ -38,19 +41,19 @@ pub fn create_token(info: LoginInfo) -> LoginToken {
         None => panic!("Value for hash not found during execution!")
     };
     
- let claims : Claims = Claims { sub : info.username, exp: (chrono::Utc::now() + chrono::Duration::hours(3)).timestamp() as usize};
+ let claims : Claims = Claims { sub : info.username, exp: (chrono::Utc::now() + chrono::Duration::days(10)).timestamp() as usize};
         let mut token : String = match encode(&Header::default(), &claims, &EncodingKey::from_secret(hash.as_ref())) {                               
             
             Ok(token) => token,
             Err(err) => { 
                 println!("Error generating token: {}", err);
-                return LoginToken(None);
+                return LoginToken::None;
             }
         };
 
         token.insert_str(0, "Bearer ");
 
-        return LoginToken(Some(token));
+        return LoginToken::Value(token);
 }
 
 pub fn check_token_val(tokenized_info : &LoginToken) -> bool {
@@ -60,9 +63,9 @@ pub fn check_token_val(tokenized_info : &LoginToken) -> bool {
     };
 
 
-    let token : String = match &tokenized_info.0 {
-        Some(value) => value.to_string(),
-        None => return false
+    let token : String = match tokenized_info {
+        LoginToken::Value(value) => value.to_string(),
+        LoginToken::None => return false
     };
 
     if token.starts_with("Bearer ") {
@@ -70,8 +73,7 @@ pub fn check_token_val(tokenized_info : &LoginToken) -> bool {
 
         return match decode::<Claims>(&headless, &DecodingKey::from_secret(hash.as_ref()), &Validation::default()) {
             Ok(values) => values.claims.check_exp(),
-            Err(error) => {
-                println!("{}", error);
+            Err(_error) => {
                 return false
             }
         }

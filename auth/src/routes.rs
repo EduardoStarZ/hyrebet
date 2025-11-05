@@ -1,6 +1,5 @@
 use common::session::{self, LoginToken};
-use common::server::Server;
-use ntex::{http::HttpMessage, web};
+use ntex:: web;
 use serde::{Serialize, Deserialize};
 use common::database;
 
@@ -17,21 +16,44 @@ struct RegisterForm {
     password2: String
 }
 
-#[web::post("/login")]
-pub async fn login(request: web::HttpRequest, form: web::types::Form<LoginForm>, server : web::types::State<Server>) -> web::HttpResponse {
+#[web::get("/login")]
+pub async fn login_redirect(_request : web::HttpRequest) -> web::HttpResponse {
+    return web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:4000/login").finish();
+}
 
-    return web::HttpResponse::Ok().finish();
+#[web::get("/register")]
+pub async fn register_redirect(_request : web::HttpRequest) -> web::HttpResponse {
+    return web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:4000/register").finish();
+}
+
+#[web::post("/login")]
+pub async fn login(_request: web::HttpRequest, form: web::types::Form<LoginForm>) -> web::HttpResponse {
+
+    let exists_and_corr : bool = database::check_user(&form.username, &form.password);
+
+    if !exists_and_corr {
+        return web::HttpResponse::Unauthorized().finish();
+    }
+
+    let cookie = match session::create_token(session::LoginInfo{username: form.username.clone(), password: form.password.clone()}) {
+        LoginToken::Value(value) => value,
+        LoginToken::None => return web::HttpResponse::Unauthorized().finish()
+    };
+
+    return web::HttpResponse::Ok().cookie(("Auth", cookie)).finish();
 }
 
 #[web::post("/register")]
-pub async fn register(request: web::HttpRequest, form: web::types::Form<RegisterForm>) -> web::HttpResponse {
+pub async fn register(_request: web::HttpRequest, form: web::types::Form<RegisterForm>) -> web::HttpResponse {
    let form :  RegisterForm = form.into_inner();
 
     if form.password1 != form.password2 {
         return web::HttpResponse::Unauthorized().finish();
     }
 
-    database::create_user(form.username, form.password1);
+    return match database::create_user(form.username, form.password1) {
+        true =>    return web::HttpResponse::Ok().finish(),
 
-   return web::HttpResponse::Ok().finish();
+        false => web::HttpResponse::Unauthorized().finish()
+    };
 }

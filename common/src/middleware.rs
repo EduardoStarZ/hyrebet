@@ -38,7 +38,7 @@ where
         
         println!("{}", req.uri());
 
-        if cookie.is_some() && session::check_token_val(&LoginToken(Some(cookie.unwrap().value().to_string()))) {
+        if cookie.is_some() && session::check_token_val(&LoginToken::Value(cookie.unwrap().value().to_string())) {
             ctx.call(&self.service, req).await
         } else {
             match req.path() {

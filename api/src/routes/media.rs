@@ -20,7 +20,7 @@ pub async fn login() -> web::HttpResponse {
 #[web::get("/register")]
 pub async fn register() -> web::HttpResponse {
     #[derive(Template, Deserialize)]
-    #[template(path = "auth/login.html")]
+    #[template(path = "auth/register.html")]
     struct RegisterTemplate;
 
     let template : String = match RegisterTemplate.render() {
