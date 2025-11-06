@@ -22,7 +22,7 @@ struct NewUser {
 }
 
 fn establish_connection_to_user_db () -> PgConnection {
-    let database_url = env::get_value("DATABASE_URL").unwrap();
+    let database_url = env::get_value("USER_DATABASE_URL").unwrap();
 
     return PgConnection::establish(&database_url).expect("Invalid DATABASE_URL parameter!");
 }
