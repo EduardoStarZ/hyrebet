@@ -2308,6 +2308,8 @@ dependencies = [
  "ntex",
  "ntex-files",
  "ntex-session",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
