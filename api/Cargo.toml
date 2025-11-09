@@ -14,3 +14,4 @@ serde_json = "1.0.143"
 diesel = {version = "2.2.0", features = ["postgres", "chrono"]}
 rand = "0.9.2"
 diesel_migrations = {version = "2.3.0", features = ["postgres"]}
+chrono = "0.4.42"
