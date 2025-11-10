@@ -81,3 +81,30 @@ pub fn check_token_val(tokenized_info : &LoginToken) -> bool {
     }
     return false;
 }
+
+pub fn get_user_from_token(tokenized_info : &LoginToken) -> Option<String> {
+    let hash = match get_hash() {
+        Some(value) => value,
+        None => panic!("Value for hash not found during execution!")
+    };
+
+
+    let token : String = match tokenized_info {
+        LoginToken::Value(value) => value.to_string(),
+        LoginToken::None => return None
+    };
+
+    if token.starts_with("Bearer ") {
+        let headless : String = token.trim_start_matches("Bearer ").trim().to_string();
+
+        return match decode::<Claims>(&headless, &DecodingKey::from_secret(hash.as_ref()), &Validation::default()) {
+            Ok(values) => Some(values.claims.sub),
+            Err(_) => {
+                return None
+            }
+        }
+
+    }
+    return None;
+
+}

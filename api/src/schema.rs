@@ -1,5 +1,5 @@
 diesel::table!{
-    posts(id) {
+    posts(id, owner) {
         id -> Integer,
         reply -> Nullable<Integer>,
         repost -> Nullable<Integer>,

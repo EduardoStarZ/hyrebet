@@ -73,3 +73,11 @@ pub fn check_user(username : &String, user_pswd : &String) -> bool {
     return false;
 }
 
+pub fn exists(username : &String) -> bool {
+    let mut connection = establish_connection_to_user_db();
+
+    return match users.find(username).select(User::as_select()).first(&mut connection).optional() {
+        Ok(_) => true,
+        Err(_) => false
+    }
+}

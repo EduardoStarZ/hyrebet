@@ -22,7 +22,7 @@ struct NewFile {
 }
 
 fn establish_connection_to_file_db () -> PgConnection {
-    let database_url = env::get_value("USER_DATABASE_URL").unwrap();
+    let database_url = env::get_value("FILE_DATABASE_URL").unwrap();
 
     return PgConnection::establish(&database_url).expect("Invalid DATABASE_URL parameter!");
 }

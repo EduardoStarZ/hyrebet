@@ -1,5 +1,5 @@
 use diesel::prelude::*;
-use common::env;
+use common::{env, database};
 use crate::schema::posts;
 use crate::schema::posts::dsl::*;
 use rand::{rng, Rng};
@@ -31,9 +31,9 @@ pub struct NewPost {
 }
 
 impl NewPost {
-    fn new(p_contents : String, p_owner : String, p_reply : Option<i32>, p_repost : Option<i32>) -> NewPost {
+    pub fn new(p_owner : String, p_contents : String, p_reply : Option<i32>, p_repost : Option<i32>) -> NewPost {
         return NewPost { 
-            id: new_unique_id(),
+            id: new_unique_id(&p_owner),
             reply : p_reply,
             repost: p_repost,
             owner: p_owner,
@@ -53,6 +53,10 @@ fn establish_connection_to_post_db () -> PgConnection {
 pub fn create_post(mut post : NewPost) -> bool {
     let mut connection = establish_connection_to_post_db();
 
+    if !database::exists(&post.owner) {
+        return false;
+    }
+
     let equal_posts = posts
         .filter(id.eq(&post.id))
         .limit(1)
@@ -61,7 +65,7 @@ pub fn create_post(mut post : NewPost) -> bool {
         .expect("Could not load database!");
 
     if equal_posts.len() > 0 {
-        post.id = new_unique_id();
+        post.id = new_unique_id(&post.owner);
     }
 
     return match diesel::insert_into(posts::table)
@@ -72,7 +76,7 @@ pub fn create_post(mut post : NewPost) -> bool {
         };
 }
 
-pub fn new_unique_id() -> i32 {
+pub fn new_unique_id(username : &String) -> i32 {
     let mut connection : PgConnection = establish_connection_to_post_db();
 
     let mut rng = rng();
@@ -81,7 +85,7 @@ pub fn new_unique_id() -> i32 {
 
     loop {
         let all_posts = posts
-        .filter(id.eq(&post_id))
+        .filter(id.eq(&post_id).and(owner.eq(username)))
         .limit(1)
         .select(Post::as_select())
         .load(&mut connection)
@@ -97,11 +101,11 @@ pub fn new_unique_id() -> i32 {
     return post_id;
 }
 
-pub fn get_post(post_id : i32) -> Option<Post> {
+pub fn get_post(post_username : &String, post_id : i32) -> Option<Post> {
     let mut connection : PgConnection = establish_connection_to_post_db();
 
     let post = posts
-        .find(post_id)
+        .find((post_id, post_username))
         .select(Post::as_select())
         .first(&mut connection)
         .optional();
