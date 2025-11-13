@@ -1,7 +1,8 @@
-use diesel::prelude::*;
+use diesel::{connection, prelude::*};
 use common::{env, database};
-use crate::schema::posts;
+use crate::{post_route_to_str, schema::posts, schema::likes};
 use crate::schema::posts::dsl::*;
+use crate::schema::likes::dsl::*;
 use rand::{rng, Rng};
 use chrono::{Local, NaiveDateTime};
 
@@ -14,7 +15,7 @@ pub struct Post {
     pub repost : Option<String>,
     pub owner : String,
     pub contents : String,
-    pub likes : i32,
+    pub total_likes : i32,
     pub time : NaiveDateTime
 }
 
@@ -26,7 +27,7 @@ pub struct NewPost {
     pub repost : Option<String>,
     pub owner : String,
     pub contents : String,
-    pub likes : i32,
+    pub total_likes : i32,
     pub time : NaiveDateTime
 }
 
@@ -38,7 +39,7 @@ impl NewPost {
             repost: p_repost,
             owner: p_owner,
             contents: p_contents,
-            likes: 0,
+            total_likes: 0,
             time: Local::now().naive_local()
         };
     }
@@ -128,4 +129,60 @@ pub fn get_post(post_username : &String, post_id : i32) -> Option<Post> {
         Ok(value) => value,
         Err(_) => None
     };
+}
+
+
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = likes)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Like {
+    pub user : String,
+    pub route : String
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = likes)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct NewLike {
+    pub user : String,
+    pub route : String
+}
+
+pub fn like(liking : String, liked_route : String) -> bool {
+    let mut connection = establish_connection_to_post_db();
+
+    let like : NewLike = NewLike { user: liking.clone(), route: liked_route.clone() };
+
+    let liked_post = likes
+        .filter(user.eq(&liking).and(route.eq(&liked_route)))
+        .limit(1)
+        .select(Like::as_select())
+        .load(&mut connection)
+        .expect("Could not load database!");
+
+    if liked_post.len() > 0 {
+        return !delete_like(liking, liked_route);
+    }
+
+    return match diesel::insert_into(likes::table)
+        .values(like)
+        .execute(&mut connection) {
+            Ok(_) => true,
+            Err(_) => false
+        };
+
+}
+
+pub fn delete_like(liking : String, liked_route : String) -> bool {
+   
+    let mut connection = establish_connection_to_post_db();
+
+    diesel::delete(likes
+        .filter(route.eq(liked_route).and(user.eq(liking))))
+        .execute(&mut connection)
+        .unwrap();
+
+
+    return true; 
 }

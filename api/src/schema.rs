@@ -5,7 +5,14 @@ diesel::table!{
         repost -> Nullable<VarChar>,
         owner -> VarChar,
         contents -> Text,
-        likes -> Integer,
+        total_likes -> Integer,
         time -> Timestamptz
+    }
+}
+
+diesel::table! {
+    likes(user, route) {
+        route -> Text,
+        user -> Text
     }
 }

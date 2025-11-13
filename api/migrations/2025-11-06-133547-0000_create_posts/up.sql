@@ -5,8 +5,13 @@ CREATE TABLE "posts"(
 	"repost" VARCHAR,
 	"owner" VARCHAR NOT NULL,
 	"contents" TEXT NOT NULL,
-	"likes" INTEGER NOT NULL,
+	"total_likes" INTEGER NOT NULL,
 	"time" TIMESTAMPTZ NOT NULL,
 	PRIMARY KEY ("id", "owner")
 );
 
+CREATE TABLE "likes" (
+	"route" VARCHAR NOT NULL,
+	"user" VARCHAR NOT NULL,
+	PRIMARY KEY ("route", "user")
+);

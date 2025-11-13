@@ -1,5 +1,7 @@
 use crate::database::{self, NewPost, Post};
+use common::session::{get_user_from_token, LoginToken};
 use ntex::web;
+use ntex::http::HttpMessage;
 use serde::Deserialize;
 use askama::Template;
 use crate::{post_route_to_str, str_to_post_route};
@@ -75,11 +77,42 @@ struct RepostPath {
 }
 
 #[web::post("/{op_type}/{user}/{post}")]
-pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types::Form<RepostForm>) -> web::HttpResponse {
-    let mut new_post : NewPost = NewPost::new(path.user.clone(), form.contents.clone(), None, None);
+pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types::Form<RepostForm>, request : web::HttpRequest) -> web::HttpResponse {
+    let auth_cookie : String = request.cookie("Auth").unwrap().to_string();
+
+    let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
+        Some(value) => value,
+        None => return web::HttpResponse::Unauthorized().finish()
+    };
+
+    let mut new_post : NewPost = NewPost::new(user, form.contents.clone(), None, None);
 
     match path.op_type.as_str() {
-        "respost" => new_post.repost = Some(post_route_to_str(path.user.clone(), path.post)),
+        "repost" => new_post.repost = Some(post_route_to_str(path.user.clone(), path.post)),
+        "reply" => new_post.reply = Some(post_route_to_str(path.user.clone(), path.post)),
+        "post" => {},
+        _ => return web::HttpResponse::BadRequest().finish()
+    }
+
+    return match database::create_post(new_post) {
+        true => web::HttpResponse::Ok().finish(),
+        false => web::HttpResponse::NotAcceptable().finish()
+    }
+}
+
+#[web::put("/{user}/{id}")]
+pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
+    let auth_cookie : String = request.cookie("Auth").unwrap().to_string();
+
+    let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
+        Some(value) => value,
+        None => return web::HttpResponse::Unauthorized().finish()
+    };
+
+    let mut new_post : NewPost = NewPost::new(user, form.contents.clone(), None, None);
+
+    match path.op_type.as_str() {
+        "repost" => new_post.repost = Some(post_route_to_str(path.user.clone(), path.post)),
         "reply" => new_post.reply = Some(post_route_to_str(path.user.clone(), path.post)),
         "post" => {},
         _ => return web::HttpResponse::BadRequest().finish()
