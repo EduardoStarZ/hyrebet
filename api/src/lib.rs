@@ -2,6 +2,16 @@ pub mod routes;
 pub mod schema;
 pub mod database;
 
+use askama::Template;
+
+#[derive(Template)]
+#[template(path = "index.html")]
+struct Base {
+    title : String,
+    scripts : Option<String>,
+    body : String
+}
+
 pub fn post_route_to_str(user : String, id : i32) -> String {
     return format!("{user}////:////{id}");
 }
