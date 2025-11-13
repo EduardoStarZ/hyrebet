@@ -78,7 +78,7 @@ struct RepostPath {
 
 #[web::post("/{op_type}/{user}/{post}")]
 pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types::Form<RepostForm>, request : web::HttpRequest) -> web::HttpResponse {
-    let auth_cookie : String = request.cookie("Auth").unwrap().to_string();
+    let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
 
     let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
         Some(value) => value,
@@ -102,7 +102,7 @@ pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types:
 
 #[web::put("/like/{user}/{id}")]
 pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
-    let auth_cookie : String = request.cookie("Auth").unwrap().to_string();
+    let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
 
     let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
         Some(value) => value,

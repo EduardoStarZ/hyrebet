@@ -162,7 +162,7 @@ pub fn like(liking : String, liked_route : String) -> bool {
         .load(&mut connection)
         .expect("Could not load database!");
 
-    if liked_post.len() > 0 {
+    if liked_post.len() != 0 {
         return !delete_like(liking, liked_route);
     }
 
@@ -173,12 +173,12 @@ pub fn like(liking : String, liked_route : String) -> bool {
                 let (_, post_owner) = str_to_post_route(liked_route).unwrap();
 
                  _ = diesel::update(posts.filter(owner.eq(&like.user).and(id.eq(post_owner))))
-                     .set(total_likes.eq(total_likes - 1))
+                     .set(total_likes.eq(total_likes + 1))
                      .execute(&mut connection);
 
                     true
             },
-            Err(_) => false
+            Err(err) => {println!("{}", err.to_string()); false}
         };
 
 }
