@@ -10,8 +10,8 @@ use chrono::{Local, NaiveDateTime};
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Post {
     pub id : i32,
-    pub reply : Option<i32>,
-    pub repost : Option<i32>,
+    pub reply : Option<String>,
+    pub repost : Option<String>,
     pub owner : String,
     pub contents : String,
     pub likes : i32,
@@ -22,8 +22,8 @@ pub struct Post {
 #[diesel(table_name = posts)]
 pub struct NewPost {
     pub id : i32,
-    pub reply : Option<i32>,
-    pub repost : Option<i32>,
+    pub reply : Option<String>,
+    pub repost : Option<String>,
     pub owner : String,
     pub contents : String,
     pub likes : i32,
@@ -31,7 +31,7 @@ pub struct NewPost {
 }
 
 impl NewPost {
-    pub fn new(p_owner : String, p_contents : String, p_reply : Option<i32>, p_repost : Option<i32>) -> NewPost {
+    pub fn new(p_owner : String, p_contents : String, p_reply : Option<String>, p_repost : Option<String>) -> NewPost {
         return NewPost { 
             id: new_unique_id(&p_owner),
             reply : p_reply,
@@ -41,6 +41,20 @@ impl NewPost {
             likes: 0,
             time: Local::now().naive_local()
         };
+    }
+}
+
+impl Post {
+    pub fn check_type(&self) -> Option<String> {
+        if self.reply.is_some() {
+            return Some(String::from("reply"));
+        } 
+
+        if self.repost.is_some() {
+            return Some(String::from("repost"));
+        }
+
+        return None;
     }
 }
 

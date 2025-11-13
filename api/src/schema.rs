@@ -1,8 +1,8 @@
 diesel::table!{
     posts(id, owner) {
         id -> Integer,
-        reply -> Nullable<Integer>,
-        repost -> Nullable<Integer>,
+        reply -> Nullable<VarChar>,
+        repost -> Nullable<VarChar>,
         owner -> VarChar,
         contents -> Text,
         likes -> Integer,

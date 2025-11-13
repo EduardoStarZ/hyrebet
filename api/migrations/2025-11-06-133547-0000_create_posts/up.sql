@@ -1,8 +1,8 @@
 -- Your SQL goes here
 CREATE TABLE "posts"(
 	"id" INTEGER NOT NULL,
-	"reply" INTEGER,
-	"repost" INTEGER,
+	"reply" VARCHAR,
+	"repost" VARCHAR,
 	"owner" VARCHAR NOT NULL,
 	"contents" TEXT NOT NULL,
 	"likes" INTEGER NOT NULL,
