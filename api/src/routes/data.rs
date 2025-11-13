@@ -100,7 +100,7 @@ pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types:
     }
 }
 
-#[web::put("/{user}/{id}")]
+#[web::put("/like/{user}/{id}")]
 pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
     let auth_cookie : String = request.cookie("Auth").unwrap().to_string();
 
@@ -109,16 +109,7 @@ pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest)
         None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    let mut new_post : NewPost = NewPost::new(user, form.contents.clone(), None, None);
-
-    match path.op_type.as_str() {
-        "repost" => new_post.repost = Some(post_route_to_str(path.user.clone(), path.post)),
-        "reply" => new_post.reply = Some(post_route_to_str(path.user.clone(), path.post)),
-        "post" => {},
-        _ => return web::HttpResponse::BadRequest().finish()
-    }
-
-    return match database::create_post(new_post) {
+    return match database::like(user, post_route_to_str(path.user.clone(), path.id)) {
         true => web::HttpResponse::Ok().finish(),
         false => web::HttpResponse::NotAcceptable().finish()
     }

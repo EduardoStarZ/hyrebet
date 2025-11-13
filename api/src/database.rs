@@ -1,6 +1,7 @@
-use diesel::{connection, prelude::*};
+use diesel::{prelude::*};
 use common::{env, database};
-use crate::{post_route_to_str, schema::posts, schema::likes};
+use crate::str_to_post_route;
+use crate::{schema::posts, schema::likes};
 use crate::schema::posts::dsl::*;
 use crate::schema::likes::dsl::*;
 use rand::{rng, Rng};
@@ -166,9 +167,17 @@ pub fn like(liking : String, liked_route : String) -> bool {
     }
 
     return match diesel::insert_into(likes::table)
-        .values(like)
+        .values(&like)
         .execute(&mut connection) {
-            Ok(_) => true,
+            Ok(_) => {
+                let (_, post_owner) = str_to_post_route(liked_route).unwrap();
+
+                 _ = diesel::update(posts.filter(owner.eq(&like.user).and(id.eq(post_owner))))
+                     .set(total_likes.eq(total_likes - 1))
+                     .execute(&mut connection);
+
+                    true
+            },
             Err(_) => false
         };
 
@@ -179,10 +188,17 @@ pub fn delete_like(liking : String, liked_route : String) -> bool {
     let mut connection = establish_connection_to_post_db();
 
     diesel::delete(likes
-        .filter(route.eq(liked_route).and(user.eq(liking))))
+        .filter(route.eq(&liked_route).and(user.eq(liking))))
         .execute(&mut connection)
         .unwrap();
 
+    let unwraped_route : (String, i32) = str_to_post_route(liked_route).unwrap();
+
+    let liked_post : Post = get_post(&unwraped_route.0, unwraped_route.1).unwrap();
+
+    _ = diesel::update(posts.filter(owner.eq(liked_post.owner).and(id.eq(liked_post.id))))
+        .set(total_likes.eq(total_likes - 1))
+        .execute(&mut connection);
 
     return true; 
 }
