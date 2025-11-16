@@ -4,13 +4,57 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
+		<link rel="stylesheet" href="http://127.0.0.1:8080/css/main.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 		<title>Login</title>
 	</head>
 	<body>
-		<form action="http://127.0.0.1:3000/login" method="post">
-			<input type="text" class="input" id="username" name="username" placeholder="name" />
-			<input type="password" class="input" id="password" name="password" placeholder="Type your password" />
-			<input type="submit" class="input" id="confirm" value="Confirm" />
-		</form>
+		<section class="hero is-fullbright">
+			<div class="hero-body">
+				<div class="container">
+					<div class="columns is-centered">
+
+						<div class="column is-6-tablet is-5-desktop is-4-widescreen">
+
+							<form class="box my-6" action="http://127.0.0.1:3000/login" method="post">
+								<h1 class="title">Please Login</h1>
+
+								<div class="field">
+
+									<label for="username" class="label mt-5 mx-auto">Username</label>
+
+									<div class="control has-icons-left">
+										<input type="text" class="input" id="username" name="username" placeholder="Username" required/> <br />
+										<span class="icon is-small is-left">
+											<i class="fa fa-user"></i>
+										</span>
+									</div>
+								</div>
+
+								<div class="field">
+
+									<label for="password" class="label mx-auto">Password</label>
+
+									<div class="control has-icons-left">
+										<input type="password" class="input" id="password" name="password" placeholder="***********" required/>
+										<span class="icon is-small is-left">
+											<i class="fa fa-lock"></i>
+										</span>
+									</div>
+								</div>
+
+								<div class="field buttons my-4">
+									<input type="submit" class="button is-success is-fullwidth" id="confirm" value="Confirm" />
+								</div>
+
+							</form>
+						</div>
+
+					</div>
+
+				</div>
+			</div>
+		</section>
+
 	</body>
 </html>

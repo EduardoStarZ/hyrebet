@@ -19,7 +19,7 @@ async fn main() -> std::io::Result<()> {
 
     let server = web::HttpServer::new(move || {
         web::App::new()
-            .service(ntxfs::Files::new("/", "../static/").show_files_listing())
+            .service(ntxfs::Files::new("/", "./static/").show_files_listing())
     });
 
     server.bind((options.ip, options.port))?.run().await
