@@ -2,6 +2,6 @@
 .testenv
 target
 */target
-.bin/
-.dev/
+/bin/
+/dev/
 build/
