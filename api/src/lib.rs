@@ -7,9 +7,9 @@ use askama::Template;
 #[derive(Template)]
 #[template(path = "index.html")]
 struct Base {
-    title : String,
-    scripts : Option<String>,
-    body : String
+    pub title : String,
+    pub scripts : Option<String>,
+    pub body : String
 }
 
 pub fn post_route_to_str(user : String, id : i32) -> String {

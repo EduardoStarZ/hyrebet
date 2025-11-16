@@ -1,6 +1,7 @@
 use ntex::web;
 use askama::Template;
 use serde::Deserialize;
+use crate::Base;
 
 #[web::get("/login")]
 pub async fn login() -> web::HttpResponse {
@@ -29,4 +30,17 @@ pub async fn register() -> web::HttpResponse {
     };
 
     return web::HttpResponse::Ok().body(template);
+}
+
+#[derive(Template)]
+#[template(path = "data/post.html")]
+struct Test {}
+
+#[web::get("/test")]
+pub async fn test() -> web::HttpResponse {
+    let post : Test = Test{};
+
+    let template : Base = Base {title: String::from("Test"), scripts: None, body: post.render().unwrap()};
+
+    return web::HttpResponse::Ok().body(template.render().unwrap());
 }
