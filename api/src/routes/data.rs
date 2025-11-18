@@ -15,7 +15,7 @@ struct PostPath {
 #[derive(Template)]
 #[template(path = "data/post.html")]
 struct PostTemplate {
-    pub contents : String
+    pub posts : Vec<Post>
 }
 
 
@@ -58,7 +58,7 @@ pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
                 _ => "Null".to_string()
             }
         },
-        None => PostTemplate{contents: sel_post.contents}.render().unwrap()
+        None => PostTemplate{posts: vec![sel_post]}.render().unwrap()
     };
 
     return web::HttpResponse::Ok().body(template); 
@@ -100,6 +100,33 @@ pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types:
     }
 }
 
+#[derive(Template)]
+#[template(path = "data/like_button.html")]
+struct LikeButton {
+    pub did_like: bool,
+    pub post: Post
+}
+
+#[web::get("/like/{user}/{id}")]
+pub async fn get_like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
+    let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
+
+    let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
+        Some(value) => value,
+        None => return web::HttpResponse::Unauthorized().finish()
+    };
+
+    let route : String = post_route_to_str(path.user.clone(), path.id);
+
+    let liked : bool = database::liked(route.clone(), user);
+
+    return { 
+            let sel_post : Post = database::get_post(&path.user, path.id).unwrap();
+            let template = LikeButton{did_like: liked, post: sel_post}.render().unwrap();
+            web::HttpResponse::Ok().body(template)
+    }
+}
+
 #[web::put("/like/{user}/{id}")]
 pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
     let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
@@ -111,10 +138,16 @@ pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest)
 
     let route : String = post_route_to_str(path.user.clone(), path.id);
 
-    let likes : usize = database::get_likes(route.clone());
-
-    return match database::like(user, route) {
-        true => web::HttpResponse::Ok().body(format!("{likes}")),
-        false => web::HttpResponse::NotAcceptable().finish()
+    return match database::like(user, route.clone()) {
+        true => { 
+            let sel_post : Post = database::get_post(&path.user, path.id).unwrap();
+            let template = LikeButton{did_like: true, post: sel_post}.render().unwrap();
+            web::HttpResponse::Ok().body(template)
+        },
+        false => {
+            let sel_post : Post = database::get_post(&path.user, path.id).unwrap();
+            let template = LikeButton{did_like: false, post: sel_post}.render().unwrap();
+            web::HttpResponse::Ok().body(template)
+        }
     }
 }

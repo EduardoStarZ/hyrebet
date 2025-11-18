@@ -214,3 +214,32 @@ pub fn get_likes(liked_route : String) -> usize {
             Err(_) => 0
         };
 }
+
+pub fn liked(liked_route : String, liking : String) -> bool {
+    let mut connection = establish_connection_to_post_db();
+
+    return match likes
+        .find((&liking, &liked_route))
+        .select(Like::as_select())
+        .first(&mut connection)
+        .optional() {
+            Ok(Some(_)) => return true ,
+            Ok(None) => return false,
+            Err(_) => false
+        };
+}
+
+pub fn get_all() -> Option<Vec<Post>> {
+    let mut connection : PgConnection = establish_connection_to_post_db();
+
+    let post = posts
+        .select(Post::as_select())
+        .load(&mut connection)
+        .optional();
+
+    return match post {
+        Ok(value) => value,
+        Err(_) => None
+    };
+}
+
