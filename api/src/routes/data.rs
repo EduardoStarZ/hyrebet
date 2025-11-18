@@ -109,8 +109,12 @@ pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest)
         None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    return match database::like(user, post_route_to_str(path.user.clone(), path.id)) {
-        true => web::HttpResponse::Ok().finish(),
+    let route : String = post_route_to_str(path.user.clone(), path.id);
+
+    let likes : usize = database::get_likes(route.clone());
+
+    return match database::like(user, route) {
+        true => web::HttpResponse::Ok().body(format!("{likes}")),
         false => web::HttpResponse::NotAcceptable().finish()
     }
 }

@@ -1,4 +1,4 @@
-use diesel::{prelude::*};
+use diesel::prelude::*;
 use common::{env, database};
 use crate::str_to_post_route;
 use crate::{schema::posts, schema::likes};
@@ -201,4 +201,16 @@ pub fn delete_like(liking : String, liked_route : String) -> bool {
         .execute(&mut connection);
 
     return true; 
+}
+
+pub fn get_likes(liked_route : String) -> usize {
+    let mut connection = establish_connection_to_post_db();
+
+    return match likes
+        .filter(route.eq(liked_route))
+        .select(Like::as_select())
+        .load(&mut connection) {
+            Ok(value) => value.len(),
+            Err(_) => 0
+        };
 }
