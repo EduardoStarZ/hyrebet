@@ -113,7 +113,7 @@ struct LikeButton {
 }
 
 #[web::get("/like/{user}/{id}")]
-pub async fn get_like(path : web::types::Path<PostPath>, request : web::HttpRequest) -> web::HttpResponse {
+pub async fn get_like(path : web::types::Path<PostPath>, query : web::types::Query<LikeQuery>, request : web::HttpRequest) -> web::HttpResponse {
     let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
 
     let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
@@ -127,9 +127,19 @@ pub async fn get_like(path : web::types::Path<PostPath>, request : web::HttpRequ
 
     return { 
             let sel_post : Post = database::get_post(&path.user, path.id).unwrap();
-            let template = LikeButton{did_like: liked, post: sel_post}.render().unwrap();
+            let template = LikeButton{did_like: liked, post: sel_post.clone()}.render().unwrap();
+            
+            if query.number.clone().is_some_and(|num| num == "true") {
+                return web::HttpResponse::Ok().body(format!("{}", sel_post.total_likes));
+            } 
+
             web::HttpResponse::Ok().body(template)
     }
+}
+
+#[derive(Deserialize)]
+struct LikeQuery {
+    pub number : Option<String>
 }
 
 #[web::put("/like/{user}/{id}")]
@@ -147,6 +157,7 @@ pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest)
         true => { 
             let sel_post : Post = database::get_post(&path.user, path.id).unwrap();
             let template = LikeButton{did_like: true, post: sel_post}.render().unwrap();
+            
             web::HttpResponse::Ok().body(template)
         },
         false => {
@@ -177,6 +188,39 @@ pub async fn profile(path : web::types::Path<String>) -> web::HttpResponse {
     let body : String = ProfileTemplate{username: path.clone(), total_posts: treated_posts.len() as i32, posts: PostTemplate { posts: treated_posts }.render().unwrap()}.render().unwrap();
 
     let template : String = Base {title: format!("Profile - {}", &path), scripts: None, body}.render().unwrap();
+
+    return web::HttpResponse::Ok().body(template);
+}
+
+#[derive(Template)]
+#[template(path = "data/home.html")]
+struct HomeTemplate {
+    username : String,
+    total_posts : i32,
+    posts : String
+}
+
+#[web::get("/")]
+pub async fn home(request : web::HttpRequest) -> web::HttpResponse {
+    let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
+
+    let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
+        Some(value) => value,
+        None => return web::HttpResponse::Unauthorized().finish()
+    };
+
+    let all_posts : i32 = database::get_all().unwrap().len() as i32; 
+
+    let random_posts : Vec<Post> = match database::get_random_posts() {
+        Some(value) => value,
+        None => return web::HttpResponse::NoContent().finish()
+    };
+
+    let treated_posts = random_posts.iter().map(|post| PostWrapper::new(&post)).collect::<Vec<PostWrapper>>();
+
+    let body : String = HomeTemplate{posts: PostTemplate { posts: treated_posts }.render().unwrap(), username : user, total_posts: all_posts}.render().unwrap();
+
+    let template : String = Base {title: String::from("Home"), scripts: None, body}.render().unwrap();
 
     return web::HttpResponse::Ok().body(template);
 }

@@ -1,5 +1,5 @@
 use common::session::{self, LoginToken};
-use ntex:: web;
+use ntex::{http::HttpMessage,  web};
 use serde::{Serialize, Deserialize};
 use common::database;
 
@@ -26,6 +26,13 @@ pub async fn register_redirect(_request : web::HttpRequest) -> web::HttpResponse
     return web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:4000/register").finish();
 }
 
+#[web::get("/logout")]
+pub async fn logout(request : web::HttpRequest) -> web::HttpResponse {
+    let cookie = request.cookie("Auth").unwrap();
+
+    return web::HttpResponse::PermanentRedirect().del_cookie(&cookie).header("Location", "http://127.0.0.1:4000/login").finish();
+}
+
 #[web::post("/login")]
 pub async fn login(_request: web::HttpRequest, form: web::types::Form<LoginForm>) -> web::HttpResponse {
 
@@ -40,7 +47,7 @@ pub async fn login(_request: web::HttpRequest, form: web::types::Form<LoginForm>
         LoginToken::None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    return web::HttpResponse::Ok().cookie(("Auth", cookie)).finish();
+    return web::HttpResponse::PermanentRedirect().cookie(("Auth", cookie)).body("<script>location.href='http://127.0.0.1:4000/'</script>");
 }
 
 #[web::post("/register")]
@@ -52,7 +59,7 @@ pub async fn register(_request: web::HttpRequest, form: web::types::Form<Registe
     }
 
     return match database::create_user(form.username, form.password1) {
-        true =>    return web::HttpResponse::Ok().finish(),
+        true => web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:4000/login").finish(),
 
         false => web::HttpResponse::Unauthorized().finish()
     };

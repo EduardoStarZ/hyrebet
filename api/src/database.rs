@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 use common::{env, database};
+use diesel::sql_types::Bool;
 use crate::str_to_post_route;
 use crate::{schema::posts, schema::likes};
 use crate::schema::posts::dsl::*;
@@ -7,7 +8,7 @@ use crate::schema::likes::dsl::*;
 use rand::{rng, Rng};
 use chrono::{Local, NaiveDateTime};
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Clone)]
 #[diesel(table_name = posts)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Post {
@@ -243,3 +244,18 @@ pub fn get_all() -> Option<Vec<Post>> {
     };
 }
 
+
+pub fn get_random_posts() -> Option<Vec<Post>> {
+    let mut connection : PgConnection = establish_connection_to_post_db();
+
+    let post = posts
+        .order(diesel::dsl::sql::<Bool>("RANDOM()"))
+        .limit(50)
+        .select(Post::as_select())
+        .load(&mut connection);
+
+    return match post {
+        Ok(value) => Some(value),
+        Err(_) => None
+    };
+}

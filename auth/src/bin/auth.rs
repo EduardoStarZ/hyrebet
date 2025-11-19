@@ -23,6 +23,7 @@ async fn main() -> std::io::Result<()> {
             .service(routes::register)
             .service(routes::login_redirect)
             .service(routes::register_redirect)
+            .service(routes::logout)
             .state(options.clone())
     });
 

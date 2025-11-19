@@ -16,9 +16,7 @@ document.getElementById("postForm").addEventListener("submit", function() {
 
 document.getElementById("cancel").addEventListener("click", closeModal);
 
-let buttons = document.querySelectorAll(".reply, .repost");
-
-console.log(buttons);
+let buttons = document.querySelectorAll(".reply, .repost, .post");
 
 buttons.forEach(function(button) {
 	let is_repost = button.classList.contains("repost");

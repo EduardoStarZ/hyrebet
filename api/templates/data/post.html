@@ -17,7 +17,7 @@
 			<div class="box repost-frame" onclick="location.href='/{{repost.owner}}/{{repost.id}}'">
 
 				<div class="field">
-					<a class="subtitle is-5">{{ repost.owner }} • {{ repost.total_likes }} likes</a>
+					<a class="subtitle is-5">{{ repost.owner }} • <span hx-get="/like/{{repost.owner}}/{{repost.id}}?number=true" hx-target="this" hx-trigger="every 30s">{{ repost.total_likes }}</span> likes</a>
 				</div>
 
 				<div class="field">
