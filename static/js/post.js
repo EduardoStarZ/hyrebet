@@ -5,8 +5,11 @@ function closeModal() {
 }
 
 document.getElementById("postForm").addEventListener("submit", function() {
+	setInterval(function() {
 	let contents = document.getElementById("contents");
 	contents.value = "";
+
+	}, 3000);
 
 	closeModal();
 });
@@ -31,11 +34,13 @@ buttons.forEach(function(button) {
 		let form = document.getElementById("postForm");
 
 		if (is_repost) {
-			form.action = `http://127.0.0.1:4000/repost/${buttonValue}`;	
+			form.setAttribute("hx-post", `http://127.0.0.1:4000/repost/${buttonValue}`);	
 		} else if(is_reply) {
-			form.action = `http://127.0.0.1:4000/reply/${buttonValue}`;
+			form.setAttribute("hx-post", `http://127.0.0.1:4000/reply/${buttonValue}`);
 		} else {
-			form.action = `http://127.0.0.1:4000/post/${buttonValue}`;
+			form.setAttribute("hx-post", `http://127.0.0.1:4000/post/${buttonValue}`);
 		}
+
+		htmx.process(form);
 	})
 });

@@ -1,4 +1,5 @@
 use crate::database::{self, NewPost, Post};
+use chrono::NaiveDateTime;
 use common::session::{get_user_from_token, LoginToken};
 use ntex::web;
 use ntex::http::HttpMessage;
@@ -19,11 +20,19 @@ struct PostTemplate {
 }
 
 
+struct Repost {
+    pub id : i32,
+    pub owner : String,
+    pub contents : String,
+    pub time : NaiveDateTime,
+    pub repost : Option<Post>,
+    pub total_likes : i32
+}
+
 #[derive(Template)]
 #[template(path = "data/repost.html")]
 struct RepostTemplate {
-    pub op_contents : String,
-    pub contents : String
+    pub posts : Vec<Repost>
 }
 
 #[derive(Template)]
@@ -44,14 +53,23 @@ pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
             match value.as_str() {
                 "reply" => ReplyTemplate{contents : sel_post.contents}.render().unwrap(),
                 "repost" => {
-                    let data : (String, i32) = str_to_post_route(sel_post.repost.unwrap()).unwrap();
+                    let data : (String, i32) = str_to_post_route(sel_post.repost.clone().unwrap()).unwrap();
 
                     let mentioned : Post = match database::get_post(&data.0, data.1) {
                        Some(value) => value,
                        None => return web::HttpResponse::NotFound().finish()
                     };
 
-                    RepostTemplate{op_contents: mentioned.contents, contents : sel_post.contents}
+                    let repost : Repost = Repost {
+                        id: sel_post.id,
+                        owner: sel_post.owner.clone(),
+                        total_likes: sel_post.total_likes,
+                        contents : sel_post.contents.clone(),
+                        repost : Some(mentioned),
+                        time : sel_post.time
+                        };
+
+                    RepostTemplate{posts : vec![repost]}
                     .render()
                         .unwrap()
                 },
@@ -66,7 +84,7 @@ pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
 
 #[derive(Deserialize)]
 struct RepostForm {
-    pub contents : String,
+    pub contents : String
 }
 
 #[derive(Deserialize)]
@@ -80,12 +98,16 @@ struct RepostPath {
 pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types::Form<RepostForm>, request : web::HttpRequest) -> web::HttpResponse {
     let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
 
+    println!("Path : {} / {} / {}", path.op_type.clone(), path.user.clone(), path.post);
+
+    println!("Form : {}", form.0.contents.clone());
+
     let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
         Some(value) => value,
         None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    let mut new_post : NewPost = NewPost::new(user, form.contents.clone(), None, None);
+    let mut new_post : NewPost = NewPost::new(user, form.0.contents.clone(), None, None);
 
     match path.op_type.as_str() {
         "repost" => new_post.repost = Some(post_route_to_str(path.user.clone(), path.post)),
