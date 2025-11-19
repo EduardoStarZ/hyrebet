@@ -14,7 +14,7 @@ document.getElementById("postForm").addEventListener("submit", function() {
 	closeModal();
 });
 
-document.getElementById("cancel").addEventListener("click", closeModal)
+document.getElementById("cancel").addEventListener("click", closeModal);
 
 let buttons = document.querySelectorAll(".reply, .repost");
 

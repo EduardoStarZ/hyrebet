@@ -118,6 +118,20 @@ pub fn get_post(post_username : &String, post_id : i32) -> Option<Post> {
     };
 }
 
+pub fn get_all_posts_from_user(username : &String) -> Option<Vec<Post>> {
+    let mut connection : PgConnection = establish_connection_to_post_db();
+
+    let post = posts
+        .filter(owner.eq(username))
+        .select(Post::as_select())
+        .load(&mut connection);
+
+    return match post {
+        Ok(value) => Some(value),
+        Err(_) => None
+    };
+}
+
 
 
 #[derive(Queryable, Selectable)]

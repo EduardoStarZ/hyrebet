@@ -1,4 +1,4 @@
-use crate::database::{self, NewPost, Post};
+use crate::{database::{self, NewPost, Post}, Base};
 use chrono::NaiveDateTime;
 use common::session::{get_user_from_token, LoginToken};
 use ntex::web;
@@ -155,4 +155,28 @@ pub async fn like(path : web::types::Path<PostPath>, request : web::HttpRequest)
             web::HttpResponse::Ok().body(template)
         }
     }
+}
+
+#[derive(Template)]
+#[template(path = "data/profile.html")]
+struct ProfileTemplate {
+    username : String,
+    total_posts : i32,
+    posts : String
+}
+
+#[web::get("/{user}")]
+pub async fn profile(path : web::types::Path<String>) -> web::HttpResponse {
+    let all_posts : Vec<Post> = match database::get_all_posts_from_user(&path) {
+        Some(value) => value,
+        None => return web::HttpResponse::NoContent().finish()
+    };
+
+    let treated_posts : Vec<PostWrapper> = all_posts.iter().map(|post| PostWrapper::new(&post)).collect::<Vec<PostWrapper>>();
+
+    let body : String = ProfileTemplate{username: path.clone(), total_posts: treated_posts.len() as i32, posts: PostTemplate { posts: treated_posts }.render().unwrap()}.render().unwrap();
+
+    let template : String = Base {title: format!("Profile - {}", &path), scripts: None, body}.render().unwrap();
+
+    return web::HttpResponse::Ok().body(template);
 }

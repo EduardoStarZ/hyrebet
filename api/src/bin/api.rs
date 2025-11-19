@@ -18,6 +18,7 @@ async fn main() -> std::io::Result<()> {
             .service(data::like)
             .service(data::get_like)
             .service(media::test)
+            .service(data::profile)
             .state(options.clone())
     });
 
