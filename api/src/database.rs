@@ -46,20 +46,6 @@ impl NewPost {
     }
 }
 
-impl Post {
-    pub fn check_type(&self) -> Option<String> {
-        if self.reply.is_some() {
-            return Some(String::from("reply"));
-        } 
-
-        if self.repost.is_some() {
-            return Some(String::from("repost"));
-        }
-
-        return None;
-    }
-}
-
 fn establish_connection_to_post_db () -> PgConnection {
     let database_url = env::get_value("POST_DATABASE_URL").unwrap();
 

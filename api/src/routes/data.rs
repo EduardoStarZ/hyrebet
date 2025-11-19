@@ -15,12 +15,12 @@ struct PostPath {
 
 #[derive(Template)]
 #[template(path = "data/post.html")]
-struct PostTemplate {
-    pub posts : Vec<Post>
+pub struct PostTemplate {
+    pub posts : Vec<PostWrapper>
 }
 
 
-struct Repost {
+pub struct PostWrapper {
     pub id : i32,
     pub owner : String,
     pub contents : String,
@@ -29,17 +29,33 @@ struct Repost {
     pub total_likes : i32
 }
 
-#[derive(Template)]
-#[template(path = "data/repost.html")]
-struct RepostTemplate {
-    pub posts : Vec<Repost>
+impl PostWrapper {
+    pub fn new(post : &Post) -> PostWrapper { 
+        return PostWrapper {
+            id: post.id,
+            contents: post.contents.clone(),
+            owner: post.owner.clone(),
+            time: post.time,
+            total_likes: post.total_likes,
+            repost : {
+                match &post.repost {
+
+                    Some(value) =>{
+                        let (name , id ) = str_to_post_route(value.to_string()).unwrap();  
+
+                        match database::get_post(&name, id) {
+                            Some(value) => Some(value),
+                            None => None
+                        }
+                    },
+                    None => None
+                }
+            }
+        
+        };
+    }
 }
 
-#[derive(Template)]
-#[template(path = "data/reply.html")]
-struct ReplyTemplate {
-    pub contents : String
-}
 
 #[web::get("/{user}/{id}")]
 pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
@@ -48,37 +64,8 @@ pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
         None => return web::HttpResponse::NotFound().finish()
     };
 
-    let template : String = match sel_post.check_type() {
-        Some(value) => {
-            match value.as_str() {
-                "reply" => ReplyTemplate{contents : sel_post.contents}.render().unwrap(),
-                "repost" => {
-                    let data : (String, i32) = str_to_post_route(sel_post.repost.clone().unwrap()).unwrap();
-
-                    let mentioned : Post = match database::get_post(&data.0, data.1) {
-                       Some(value) => value,
-                       None => return web::HttpResponse::NotFound().finish()
-                    };
-
-                    let repost : Repost = Repost {
-                        id: sel_post.id,
-                        owner: sel_post.owner.clone(),
-                        total_likes: sel_post.total_likes,
-                        contents : sel_post.contents.clone(),
-                        repost : Some(mentioned),
-                        time : sel_post.time
-                        };
-
-                    RepostTemplate{posts : vec![repost]}
-                    .render()
-                        .unwrap()
-                },
-                _ => "Null".to_string()
-            }
-        },
-        None => PostTemplate{posts: vec![sel_post]}.render().unwrap()
-    };
-
+    let template : String = PostTemplate{posts: vec![PostWrapper::new(&sel_post)]}.render().unwrap();
+    
     return web::HttpResponse::Ok().body(template); 
 }
 
@@ -97,10 +84,6 @@ struct RepostPath {
 #[web::post("/{op_type}/{user}/{post}")]
 pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types::Form<RepostForm>, request : web::HttpRequest) -> web::HttpResponse {
     let auth_cookie : String = request.cookie("Auth").unwrap().value().to_string();
-
-    println!("Path : {} / {} / {}", path.op_type.clone(), path.user.clone(), path.post);
-
-    println!("Form : {}", form.0.contents.clone());
 
     let user = match get_user_from_token(&LoginToken::Value(auth_cookie)) {
         Some(value) => value,

@@ -1,9 +1,9 @@
 {% if did_like %}
 
-<a class="button is-danger" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes }}</a>
+<a class="button is-danger" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes }} likes</a>
 
 {% else %}
 
-<a class="button is-success" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes }}</a>
+<a class="button is-danger is-outlined" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes}} likes</a>
 
 {% endif %}

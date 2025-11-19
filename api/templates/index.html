@@ -10,6 +10,7 @@
 		<link rel="manifest" href="http://127.0.0.1:8080/site.webmanifest">
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css" />
 		<link rel="stylesheet" href="http://127.0.0.1:8080/css/main.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 		<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 		<script src="http://127.0.0.1:8080/js/post.js" defer></script>
 		<!-- <script src="http://127.0.0.1:8080/js/file.js"></script> -->
@@ -21,7 +22,7 @@
 	<body>
 		{{ body|safe }}
 
-		<dialog id="postModal">
+		<dialog id="postModal" class="has-background-primary-00">
 			<form id="postForm" hx-post="http://127.0.0.1:4000/" hx-trigger="submit" hx-swap="none">
 				<div class="field buttons">
 					<input type="submit" class="button is-success" id="submit" value="Post" />
@@ -29,7 +30,7 @@
 				</div>
 
 				<div class="control">
-					<textarea class="textarea is-normal" id="contents" name="contents" rows="5" cols="80" maxlenght="240" required></textarea>
+					<textarea class="textarea is-normal has-fixed-size" id="contents" name="contents" rows="5" cols="80" maxlenght="240" required autofocus></textarea>
 				</div>
 			</form>
 		</dialog>
