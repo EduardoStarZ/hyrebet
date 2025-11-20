@@ -1,12 +1,3 @@
-.env
-.testenv
-target
-*/target
-/bin/
-/dev/
-build/
-/static/content/*
-
 # Logs
 logs
 *.log
