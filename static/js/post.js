@@ -1,3 +1,17 @@
+function doubleEventListener(type, elements, func) {
+	const attach = (elements, type, func) => { 
+		elements.forEach(function(element) {
+			element.addEventListener(type, func)
+		})
+	};
+	
+	document.addEventListener("htmx:afterSwap", function() {
+		attach(elements, type, func);
+	});
+	
+	attach(elements, type, func);
+}
+
 function closeModal() {
 	let dialog = document.getElementById("postModal");
 
@@ -42,3 +56,22 @@ buttons.forEach(function(button) {
 		htmx.process(form);
 	})
 });
+
+let boxes = document.querySelectorAll(".post-box");
+
+boxes.forEach(function(box) {
+	box.addEventListener("click", function() {
+		location.href = box.getAttribute("whereto");
+	})	
+});
+
+
+function no_propagate() {
+	let no_propagation_elts = document.querySelectorAll(".nopropagate");
+
+	no_propagation_elts.forEach(function(elt) {
+		elt.addEventListener("click", function(event) {
+			event.stopPropagation();
+		})
+	})
+}

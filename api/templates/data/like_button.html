@@ -1,10 +1,10 @@
 {% if did_like %}
 
 
-<a class="button is-danger like-button" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes }} likes</a> 
+<a class="button is-danger like-button nopropagate" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes }} likes</a> 
 
 {% else %}
 
-<a class="button is-danger is-outlined like-button" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes}} likes</a>
+<a class="button is-danger is-outlined like-button nopropagate" hx-put="/like/{{ post.owner }}/{{ post.id }}" hx-trigger="click" hx-target="this" hx-swap="outerHTML">{{ post.total_likes}} likes</a>
 
 {% endif %}

@@ -2,9 +2,9 @@
 
 <div class="columns is-centered">
 	<div class="column is-6-tablet is-5-desktop is-4-widescreen">
-		<div class="box">
+		<div class="box post-box" whereto="/{{ post.owner }}/{{ post.id }}?fullview=true">
 			<div class="field">
-				<a class="subtitle is-5" href="/{{post.owner}}">{{post.owner}}</a>
+				<a class="subtitle is-5 nopropagate" href="/{{post.owner}}">{{post.owner}}</a>
 			</div>
 
 			<div class="field">
@@ -14,14 +14,14 @@
 			{% match post.repost %}
 
 			{% when Some with (repost) %}
-			<div class="box repost-frame" onclick="location.href='/{{repost.owner}}/{{repost.id}}'">
+			<div class="box post-box nopropagate" whereto="/{{ repost.owner }}/{{ repost.id }}?fullview=true">
 
 				<div class="field">
-					<a class="subtitle is-5">{{ repost.owner }} • <span hx-get="/like/{{repost.owner}}/{{repost.id}}?number=true" hx-target="this" hx-trigger="every 30s">{{ repost.total_likes }}</span> likes</a>
+					<a class="subtitle is-5 nopropagate" href="/{{ repost.owner }}" >{{ repost.owner }} • <span hx-get="/like/{{repost.owner}}/{{repost.id}}?number=true" hx-target="this" hx-trigger="every 30s">{{ repost.total_likes }}</span> likes</a>
 				</div>
 
 				<div class="field">
-					<p class="text">{{ repost.contents }}</p>
+					<p class="text nopropagate">{{ repost.contents }}</p>
 				</div>
 			</div>
 
@@ -30,8 +30,8 @@
 
 
 			<div class="field buttons">
-				<button class="button is-success reply" value="{{ post.owner }}/{{ post.id }}">Reply</button>
-				<button class="button is-success repost" value="{{ post.owner }}/{{ post.id }}">Repost</button>
+				<button class="button is-success reply nopropagate" value="{{ post.owner }}/{{ post.id }}">Reply</button>
+				<button class="button is-success repost nopropagate" value="{{ post.owner }}/{{ post.id }}">Repost</button>
 			
 				<div class="control has-icons-left">
 					<div hx-get="/like/{{ post.owner }}/{{ post.id }}" hx-target="this" hx-trigger="load" hx-swap="outerHTML"></div>

@@ -57,12 +57,39 @@ impl PostWrapper {
 }
 
 
+#[derive(Deserialize)]
+struct PostQuery {
+    pub fullview : Option<String>
+}
+
+#[derive(Template)]
+#[template(path = "data/full_post.html")]
+struct FullPostTemplate {
+    pub post : PostWrapper,
+    pub replies : Vec<PostWrapper>
+}
+
 #[web::get("/{user}/{id}")]
-pub async fn get_post(path : web::types::Path<PostPath>) -> web::HttpResponse {
+pub async fn get_post(path : web::types::Path<PostPath>, query : web::types::Query<PostQuery>) -> web::HttpResponse {
     let sel_post : Post = match database::get_post(&path.user, path.id) {
         Some(value) => value,
         None => return web::HttpResponse::NotFound().finish()
     };
+
+    if query.fullview.clone().is_some_and(|value| value == "true") {
+        let untreated_replies : Vec<Post> = match database::get_replies(&sel_post) {
+            Some(value) => value,
+            None => Vec::new()
+        };
+
+        let treated_replies = untreated_replies.iter().map(|reply| PostWrapper::new(&reply)).collect::<Vec<PostWrapper>>();
+
+        let body : String = FullPostTemplate{post : PostWrapper::new(&sel_post), replies : treated_replies}.render().unwrap();
+
+        let template : String = Base{title : format!("{}'s post", &path.user), scripts: None, body: body}.render().unwrap();
+
+        return web::HttpResponse::Ok().body(template);
+    }
 
     let template : String = PostTemplate{posts: vec![PostWrapper::new(&sel_post)]}.render().unwrap();
     
@@ -100,8 +127,12 @@ pub async fn create_post(path : web::types::Path<RepostPath>, form : web::types:
     }
 
     return match database::create_post(new_post) {
-        true => web::HttpResponse::Ok().finish(),
-        false => web::HttpResponse::NotAcceptable().finish()
+        Some(post) => {
+            let template : String = PostTemplate { posts: vec![PostWrapper::new(&post)]}.render().unwrap();
+        
+            web::HttpResponse::Ok().body(template)
+        },
+        None => web::HttpResponse::NotAcceptable().finish()
     }
 }
 

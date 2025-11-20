@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use common::{env, database};
 use diesel::sql_types::Bool;
-use crate::str_to_post_route;
+use crate::{post_route_to_str, str_to_post_route};
 use crate::{schema::posts, schema::likes};
 use crate::schema::posts::dsl::*;
 use crate::schema::likes::dsl::*;
@@ -53,11 +53,11 @@ fn establish_connection_to_post_db () -> PgConnection {
     return PgConnection::establish(&database_url).expect("Invalid DATABASE_URL parameter!");
 }
 
-pub fn create_post(mut post : NewPost) -> bool {
+pub fn create_post(mut post : NewPost) -> Option<Post> {
     let mut connection = establish_connection_to_post_db();
 
     if !database::exists(&post.owner) {
-        return false;
+        return None;
     }
 
     let equal_posts = posts
@@ -73,9 +73,10 @@ pub fn create_post(mut post : NewPost) -> bool {
 
     return match diesel::insert_into(posts::table)
         .values(post)
-        .execute(&mut connection) {
-            Ok(_) => true,
-            Err(_) => false
+        .returning(Post::as_returning())
+        .get_result(&mut connection) {
+            Ok(value) => Some(value),
+            Err(_) => None
         };
 }
 
@@ -115,6 +116,22 @@ pub fn get_post(post_username : &String, post_id : i32) -> Option<Post> {
 
     return match post {
         Ok(value) => value,
+        Err(_) => None
+    };
+}
+
+pub fn get_replies(post : &Post) -> Option<Vec<Post>> {
+    let mut connection : PgConnection = establish_connection_to_post_db();
+
+    let desired_route : String = post_route_to_str(post.owner.clone(), post.id);
+
+    let replies = posts
+        .filter(reply.eq(desired_route))
+        .select(Post::as_select())
+        .load(&mut connection);
+
+    return match replies {
+        Ok(value) => Some(value),
         Err(_) => None
     };
 }

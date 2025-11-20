@@ -1,0 +1,68 @@
+<div class="columns is-centered">
+	<div class="column is-6-tablet is-5-desktop is-5-widescreen">
+		<div class="box">
+			<div class="field">
+				<a class="subtitle is-5" href="/{{post.owner}}">{{post.owner}}</a>
+			</div>
+
+			<div class="field">
+				<p class="text">{{post.contents}}</p>
+			</div>
+
+			{% match post.repost %}
+
+			{% when Some with (repost) %}
+			<div class="box post-box" whereto="/{{ repost.owner }}/{{ repost.id }}?fullview=true">
+
+				<div class="field">
+					<a class="subtitle is-5 nopropagate" href="/{{ repost.owner}}">{{ repost.owner }} • <span hx-get="/like/{{repost.owner}}/{{repost.id}}?number=true" hx-target="this" hx-trigger="every 30s">{{ repost.total_likes }}</span> likes</a>
+				</div>
+
+				<div class="field">
+					<p class="text nopropagate">{{ repost.contents }}</p>
+				</div>
+			</div>
+
+			{% when None %}
+			{% endmatch %}
+
+
+			<div class="field buttons">
+				<button class="button is-success reply nopropagate" value="{{ post.owner }}/{{ post.id }}">Reply</button>
+				<button class="button is-success repost nopropagate" value="{{ post.owner }}/{{ post.id }}">Repost</button>
+			
+				<div class="control has-icons-left">
+					<div hx-get="/like/{{ post.owner }}/{{ post.id }}" hx-target="this" hx-trigger="load" hx-swap="outerHTML"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="htmx-target">
+	{% for reply in replies %}
+	<div class="columns is-centered">
+		<div class="column is-6-tablet is-5-desktop is-4-widescreen">
+			<div class="box post-box" whereto="/{{ reply.owner }}/{{ reply.id }}?fullview=true">
+				<div class="field">
+					<a class="subtitle is-5 nopropagate" href="/{{reply.owner}}">{{reply.owner}}</a>
+				</div>
+
+				<div class="field">
+					<p class="text nopropagate">{{reply.contents}}</p>
+				</div>
+
+				<div class="field buttons">
+					<button class="button is-success reply nopropagate" value="{{ reply.owner }}/{{ reply.id }}">Reply</button>
+					<button class="button is-success repost nopropagate" value="{{ reply.owner }}/{{ reply.id }}">Repost</button>
+
+					<div class="control has-icons-left">
+						<div hx-get="/like/{{ reply.owner }}/{{ reply.id }}" hx-target="this" hx-trigger="load" hx-swap="outerHTML"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endfor %}
+</div>
