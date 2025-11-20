@@ -1,16 +1,14 @@
-setInterval(function() {
-	let goback = document.getElementById("navbar");
+let goback = document.getElementById("back");
 
+setInterval(function() {
 	if (location.pathname == "/" || location.pathname == "") {
 		goback.classList.add("nodisplay");
 	} else {
 		goback.classList.remove("nodisplay");
 	}
-}, 200);
+}, 0);
 
-let goback_button = document.getElementById("back");
-
-goback_button.addEventListener("click", function() {
+goback.addEventListener("click", function() {
 	history.back();
 	window.location.reload();
 })

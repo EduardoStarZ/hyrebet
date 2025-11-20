@@ -2,10 +2,15 @@ html {
 		scrollbar-width: 40% !important;
 }
 
+dialog {
+	border-radius: 8px;
+	border-color: #00000000;
+
+}
+
 .navbar {
 		display: flex !important;
-		align-content: center !important;
-		justify-content: center !important;
+		background-color: #48C78E !important;
 }
 
 .navbar-menu {
@@ -18,6 +23,7 @@ html {
 }
 
 .navbar-center {
+	display: flex !important;
     align-self: center;
     z-index: 200;
     margin: 0 auto;
