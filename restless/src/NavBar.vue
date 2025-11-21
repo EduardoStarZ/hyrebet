@@ -1,16 +1,4 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-
-const home = ref(location.pathname);
-
-setInterval(function() {
-  home.value = location.pathname;
-}, 100);
-
-const goBack = () => {
-  history.back();
-}
-</script>
+<script setup lang="ts"></script>
 
 <template>
 
@@ -21,8 +9,7 @@ const goBack = () => {
       <div class="navbar-start">
         <div class="navbar-item">
           <div id="left-buttons" class="buttons">
-            <button v-if="home == true" id="back" class="nodisplay"></button>
-            <button v-else @click="goBack" id="back" class="button is-white">Go back</button>
+            <slot></slot>
           </div>
         </div>
       </div>
