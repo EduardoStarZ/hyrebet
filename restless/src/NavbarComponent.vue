@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
 
   <nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
@@ -9,7 +7,7 @@
       <div class="navbar-start">
         <div class="navbar-item">
           <div id="left-buttons" class="buttons">
-            <slot></slot>
+            <slot />
           </div>
         </div>
       </div>
