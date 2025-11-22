@@ -7,8 +7,9 @@ use crate::schema::posts::dsl::*;
 use crate::schema::likes::dsl::*;
 use rand::{rng, Rng};
 use chrono::{Local, NaiveDateTime};
+use serde::Serialize;
 
-#[derive(Queryable, Selectable, Clone)]
+#[derive(Queryable, Selectable, Clone, Serialize)]
 #[diesel(table_name = posts)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Post {

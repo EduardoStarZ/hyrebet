@@ -19,6 +19,11 @@ async fn main() -> std::io::Result<()> {
     let server = web::HttpServer::new(move || {
         web::App::new()
             .wrap(CheckLogin)
+            .service(
+                web::scope("/json")
+                .service(routes::login_json)
+                .service(routes::register_json)
+            )
             .service(routes::login)
             .service(routes::register)
             .service(routes::login_redirect)
