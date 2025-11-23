@@ -1,11 +1,14 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import NavbarComponent from './NavbarComponent.vue'
+  import { useRouter } from 'vue-router'
 
   const formData = ref({
     username: '',
     password: ''
   });
+
+  const router = useRouter();
 
 
   const handleSubmit = async () => {
@@ -17,7 +20,10 @@
         },
         body: JSON.stringify(formData.value)
         });
-        console.log('Form submitted successfully:', response);
+
+        if (response.ok) {
+          router.push("/home");
+        }
 
         formData.value = { name: '', email: '' };
       } catch (error) {
@@ -65,7 +71,7 @@
 									</div>
 								</div>
 
-								<p>Don't have an account? <RouterLink class="link" to="/register">Register</RouterLink></p>
+								<p>Don't have an account? <RouterLink class="link" to="/">Register</RouterLink></p>
 
 
 								<div class="field buttons my-4">

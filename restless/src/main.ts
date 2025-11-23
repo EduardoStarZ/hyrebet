@@ -4,10 +4,12 @@ import App from './App.vue'
 import LoginView from './LoginView.vue'
 import RegisterView from './RegisterView.vue'
 import VueCookies from 'vue-cookies'
+import HomeView from './HomeView.vue'
 
 const routes = [
   { path: '/', component: RegisterView },
   { path: '/login', component: LoginView},
+  { path: '/home', component: HomeView}
 ]
 
 export const router = createRouter({

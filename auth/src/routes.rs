@@ -66,7 +66,9 @@ pub async fn login_json(_request: web::HttpRequest, form: web::types::Json<Login
     };
 
     let cookie = Cookie::build(("Auth", value))
-        .secure(true)
+        .path("/")
+        .same_site(cookie::SameSite::Lax)
+        .secure(false)
         .http_only(true)
         .max_age(Duration::days(7));
 
@@ -103,4 +105,12 @@ pub async fn register_json(_request: web::HttpRequest, form: web::types::Json<Re
 
         false => web::HttpResponse::Unauthorized().finish()
     };
+}
+
+#[web::get("/check")]
+pub async fn check_json(request: web::HttpRequest) -> web::HttpResponse {
+    return match request.cookie("Auth") {
+        Some(_) => web::HttpResponse::Ok().finish(),
+        None => web::HttpResponse::Unauthorized().finish()
+    }
 }

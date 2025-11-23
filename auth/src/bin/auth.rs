@@ -23,6 +23,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/json")
                 .service(routes::login_json)
                 .service(routes::register_json)
+                .service(routes::check_json)
             )
             .service(routes::login)
             .service(routes::register)
