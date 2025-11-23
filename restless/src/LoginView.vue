@@ -1,32 +1,22 @@
 <script setup lang="ts">
-  import { inject, ref } from 'vue'
+  import { ref } from 'vue'
   import NavbarComponent from './NavbarComponent.vue'
-
-  const $cookies = inject('$cookies');
 
   const formData = ref({
     username: '',
     password: ''
   });
 
-  const setupCookie = (value) => {
-    $cookies.set("Auth", value, '7d');
-  }
 
   const handleSubmit = async () => {
     try {
-        const response = await fetch('/json/login', {
+        const response = await fetch('/auth/json/login', {
         method: 'POST',
         headers : {
           'Content-Type' : 'application/json'
         },
         body: JSON.stringify(formData.value)
         });
-
-        const value = await response.text();
-
-        console.log(value);
-
         console.log('Form submitted successfully:', response);
 
         formData.value = { name: '', email: '' };

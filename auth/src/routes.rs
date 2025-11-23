@@ -1,4 +1,5 @@
 use common::session::{self, LoginToken};
+use cookie::{Cookie, time::Duration};
 use ntex::{http::HttpMessage,  web};
 use serde::{Serialize, Deserialize};
 use common::database;
@@ -59,14 +60,17 @@ pub async fn login_json(_request: web::HttpRequest, form: web::types::Json<Login
         return web::HttpResponse::Unauthorized().finish();
     }
 
-    let cookie = match session::create_token(session::LoginInfo{username: form.username.clone(), password: form.password.clone()}) {
+    let value = match session::create_token(session::LoginInfo{username: form.username.clone(), password: form.password.clone()}) {
         LoginToken::Value(value) => value,
         LoginToken::None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    let response = format!("{{'value' : '{}'}}", cookie);
+    let cookie = Cookie::build(("Auth", value))
+        .secure(true)
+        .http_only(true)
+        .max_age(Duration::days(7));
 
-    return web::HttpResponse::Ok().cookie(("Auth", cookie)).json(&response);
+    return web::HttpResponse::Ok().cookie(cookie).finish();
 }
 
 #[web::post("/register")]

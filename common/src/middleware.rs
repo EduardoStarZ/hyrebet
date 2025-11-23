@@ -42,10 +42,7 @@ where
             ctx.call(&self.service, req).await
         } else {
             match req.path() {
-                "/register" => {
-                    ctx.call(&self.service, req).await
-                },
-                "/login" => {
+                "/register" | "/login" | "/json/login" | "/json/register" => {
                     ctx.call(&self.service, req).await
                 },
                 _ => {
