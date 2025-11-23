@@ -1,18 +1,33 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { inject, ref } from 'vue'
   import NavbarComponent from './NavbarComponent.vue'
-  import axios from 'axios';
+
+  const $cookies = inject('$cookies');
 
   const formData = ref({
     username: '',
     password: ''
   });
 
+  const setupCookie = (value) => {
+    $cookies.set("Auth", value, '7d');
+  }
+
   const handleSubmit = async () => {
     try {
-        const response = await axios.post('http://127.0.0.1:3000/login', formData.value);
+        const response = await fetch('/json/login', {
+        method: 'POST',
+        headers : {
+          'Content-Type' : 'application/json'
+        },
+        body: JSON.stringify(formData.value)
+        });
 
-        console.log('Form submitted successfully:', response.data);
+        const value = await response.text();
+
+        console.log(value);
+
+        console.log('Form submitted successfully:', response);
 
         formData.value = { name: '', email: '' };
       } catch (error) {
