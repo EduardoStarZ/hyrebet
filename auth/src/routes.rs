@@ -64,7 +64,9 @@ pub async fn login_json(_request: web::HttpRequest, form: web::types::Json<Login
         LoginToken::None => return web::HttpResponse::Unauthorized().finish()
     };
 
-    return web::HttpResponse::PermanentRedirect().cookie(("Auth", cookie)).body("<script>location.href='http://127.0.0.1:5000/'</script>");
+    let response = format!("{{'value' : '{}'}}", cookie);
+
+    return web::HttpResponse::Ok().cookie(("Auth", cookie)).json(&response);
 }
 
 #[web::post("/register")]
@@ -90,8 +92,10 @@ pub async fn register_json(_request: web::HttpRequest, form: web::types::Json<Re
         return web::HttpResponse::Unauthorized().finish();
     }
 
+    let value = "{value : true}";
+
     return match database::create_user(form.username, form.password1) {
-        true => web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:5000/login").finish(),
+        true => web::HttpResponse::Ok().json(&value),
 
         false => web::HttpResponse::Unauthorized().finish()
     };

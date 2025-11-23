@@ -55,11 +55,11 @@ function setPost() {
 			let form = document.getElementById("postForm");
 
 			if (is_repost) {
-				form.setAttribute("hx-post", `http://127.0.0.1:4000/repost/${buttonValue}`);	
+				form.setAttribute("hx-post", `/repost/${buttonValue}`);	
 			} else if(is_reply) {
-				form.setAttribute("hx-post", `http://127.0.0.1:4000/reply/${buttonValue}`);
+				form.setAttribute("hx-post", `/reply/${buttonValue}`);
 			} else {
-				form.setAttribute("hx-post", `http://127.0.0.1:4000/post/${buttonValue}`);
+				form.setAttribute("hx-post", `/post/${buttonValue}`);
 			}
 
 			htmx.process(form);
