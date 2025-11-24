@@ -19,6 +19,7 @@ pub struct PostTemplate {
     pub posts : Vec<PostWrapper>
 }
 
+#[derive(Serialize)]
 pub struct PostWrapper {
     pub id : i32,
     pub owner : String,
@@ -372,7 +373,7 @@ pub async fn home(request : web::HttpRequest) -> web::HttpResponse {
 struct HomeJson {
     username : String,
     total_posts : i32,
-    posts : Vec<Post>
+    posts : Vec<PostWrapper>
 }
 
 #[web::get("/")]
@@ -391,7 +392,9 @@ pub async fn home_json(request : web::HttpRequest) -> web::HttpResponse {
         None => return web::HttpResponse::NoContent().finish()
     };
 
-    let json = HomeJson{posts: random_posts, username : user, total_posts: all_posts};
+    let treated_posts : Vec<PostWrapper> = random_posts.iter().map(|post| PostWrapper::new(post)).collect::<Vec<PostWrapper>>();
+
+    let json = HomeJson{posts: treated_posts, username : user, total_posts: all_posts};
 
     return web::HttpResponse::Ok().json(&json);
 }
