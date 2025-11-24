@@ -1,14 +1,13 @@
 <script setup lang="ts">
   import {defineProps, reactive, onMounted} from 'vue'
-  import {Post} from './post.ts'
 
   const bodyData = reactive({
-    did_like: false,
+    liked: false,
     post: {}
   });
 
   const props = defineProps({
-    post : Post
+    post : Object
   });
 
   const route = `/api/json/like/${props.post.owner}/${props.post.id}`;
@@ -22,12 +21,26 @@
 
     const data = await response.json();
 
-    bodyData.did_liked = data.did_like;
+    bodyData.liked = data.did_like;
     bodyData.post = data.post;
+
   } catch(error) {
     console.log(error)
   }
   });
+
+  async function like() {
+    const response = await fetch(route, {
+      method : 'PUT',
+      headers : {"Content-Type": "application/json"},
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    bodyData.liked = data.did_like;
+    bodyData.post = data.post;
+  }
 
 </script>
 <template>
@@ -46,7 +59,7 @@
       <div class="box post-box nopropagate" v-bind:whereto="`/${post.repost.owner}/${post.repost.id}?fullview=true`">
 
         <div class="field">
-          <RouterLink class="subtitle is-5 nopropagate" v-bind:to="`/${post.repost.owner}`">{{ post.repost.owner }} • <span>{{ post.repost.total_likes }}</span>likes</RouterLink>
+          <RouterLink class="subtitle is-5 nopropagate" v-bind:to="`/${post.repost.owner}`">{{post.repost.owner }} • <span>{{ post.repost.total_likes }}</span> Likes</RouterLink>
         </div>
 
         <div class="field">
@@ -61,8 +74,8 @@
 				<button class="button is-success repost nopropagate" v-bind:value="`${post.owner}/${post.id}`">Repost</button>
 
 				<div class="control has-icons-left">
-          <button class="button is-danger is-outlined like-button" v-if="bodyData.liked">{{ bodyData.post.total_likes }} Likes</button>
-          <button class="button is-danger like-button" v-else>{{ bodyData.post.total_likes }} Likes</button>
+          <button class="button is-danger like-button" v-if="bodyData.liked" @click="like" >{{ bodyData.post.total_likes }} Likes</button>
+          <button class="button is-danger is-outlined like-button" v-else @click="like">{{ bodyData.post.total_likes }} Likes</button>
 				</div>
 			</div>
 		</div>
