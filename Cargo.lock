@@ -2305,6 +2305,7 @@ dependencies = [
  "diesel",
  "diesel_migrations",
  "ntex",
+ "ntex-cors",
  "ntex-files",
  "ntex-session",
  "rand 0.9.2",

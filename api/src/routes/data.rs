@@ -102,8 +102,23 @@ pub async fn get_post_json(path : web::types::Path<PostPath>) -> web::HttpRespon
         Some(value) => value,
         None => return web::HttpResponse::NotFound().finish()
     };
+
+    let untreated_replies : Vec<Post> = match database::get_replies(&sel_post) {
+            Some(value) => value,
+            None => Vec::new()
+    };
+
+    let treated_replies = untreated_replies.iter().map(|reply| PostWrapper::new(&reply)).collect::<Vec<PostWrapper>>();
+
+    #[derive(Serialize)]
+    struct Response {
+        post : PostWrapper,
+        replies : Vec<PostWrapper>
+    }
+
+    let response : Response = Response {post: PostWrapper::new(&sel_post), replies: treated_replies};
     
-    return web::HttpResponse::Ok().json(&sel_post); 
+    return web::HttpResponse::Ok().json(&response); 
 }
 
 
