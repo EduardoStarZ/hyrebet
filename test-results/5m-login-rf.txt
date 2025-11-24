@@ -1,0 +1,8 @@
+Running 5m test @ http://127.0.0.1:4000/login
+  4 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   292.87us  557.41us  18.35ms   87.92%
+    Req/Sec    19.15k     3.35k   30.46k    76.73%
+  22866732 requests in 5.00m, 61.55GB read
+Requests/sec:  76219.63
+Transfer/sec:    210.07MB
