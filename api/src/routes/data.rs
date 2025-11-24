@@ -325,12 +325,25 @@ pub async fn profile(path : web::types::Path<String>) -> web::HttpResponse {
 
 #[web::get("/{user}")]
 pub async fn profile_json(path : web::types::Path<String>) -> web::HttpResponse {
+    #[derive(Serialize)]
+    struct Response {
+        username : String,
+        total_posts: i32,
+        posts: Vec<PostWrapper>
+    }
+
     let all_posts : Vec<Post> = match database::get_all_posts_from_user(&path) {
         Some(value) => value,
         None => return web::HttpResponse::NoContent().finish()
     };
 
-    return web::HttpResponse::Ok().json(&all_posts);
+    let treated_posts: Vec<PostWrapper> = all_posts.iter().map(|post| PostWrapper::new(&post)).collect::<Vec<PostWrapper>>();
+    
+    let total_posts : i32 = all_posts.len() as i32;
+
+    let response : Response = Response {posts: treated_posts, username: path.to_string(), total_posts};
+
+    return web::HttpResponse::Ok().json(&response);
 }
 
 
