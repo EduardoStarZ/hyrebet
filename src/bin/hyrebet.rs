@@ -21,6 +21,7 @@ fn main() {
         let mut auth : Child;
         let mut api : Child;
         let mut static_fs : Child;
+        let mut vue_launcher : Child;
 
         if args[0].contains("bin") {
 
@@ -39,6 +40,12 @@ fn main() {
                 Err(_) => panic!("Binary for API not built! ")
             };
 
+            vue_launcher = match Command::new("./bin/vue-launcher").spawn() {
+                Ok(value) => value,
+                Err(_) => panic!("Binary for Vue not built! ")
+            };
+
+
         } else {
             auth = match Command::new("./dev/auth").spawn() {
                 Ok(value) => value,
@@ -53,7 +60,12 @@ fn main() {
             api = match Command::new("./dev/api").spawn() {
                 Ok(value) => value,
                 Err(_) => panic!("Binary for API not built! ")
-            };     
+            };
+
+            vue_launcher = match Command::new("./dev/vue-launcher").spawn() {
+                Ok(value) => value,
+                Err(_) => panic!("Binary for Vue not built! ")
+            };
         }
 
         loop {
@@ -61,6 +73,7 @@ fn main() {
                 api.kill().unwrap();
                 auth.kill().unwrap();
                 static_fs.kill().unwrap();
+                vue_launcher.kill().unwrap();
 
                 break;
             } 

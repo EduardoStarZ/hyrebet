@@ -14,4 +14,4 @@ codegen-units = 2
 opt-level = 3
 
 [workspace]
-members = ["api", "auth", "static-fs"]
+members = ["api", "auth", "static-fs", "vue-launcher"]
