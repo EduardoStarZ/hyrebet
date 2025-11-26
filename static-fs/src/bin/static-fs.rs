@@ -1,8 +1,7 @@
-use std::{fs::{self, File}, io::Write, net::Ipv4Addr};
+use std::{fs, net::Ipv4Addr};
 use common::server::{Server, ServerID};
 use ntex::{web, http};
 use ntex_files as ntxfs;
-use serde::Deserialize;
 use ntex_cors::Cors;
 
 #[ntex::main]
