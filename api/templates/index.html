@@ -17,6 +17,7 @@
 		<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
 		<script src="http://127.0.0.1:8080/js/post.js" defer></script>
 		<script src="http://127.0.0.1:8080/js/home.js" defer></script>
+
 		{% match scripts %}
 			{% when Some with (value) %} {{ value }}
 			{% when None %}

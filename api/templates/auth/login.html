@@ -14,6 +14,8 @@
 		<link rel="icon" type="image/png" sizes="16x16" href="http://127.0.0.1:8080/favicon-16x16.png">
 		<link rel="manifest" href="http://127.0.0.1:8080/site.webmanifest">
 		<title>Login</title>
+		<script src="http://cdn.rawgit.com/h2non/jsHashes/master/hashes.js" defer></script>
+		<script src="http://127.0.0.1:8080/js/login.js" defer></script>
 	</head>
 	<body>
 		<nav id="navbar" class="navbar" role="navigation" aria-label="main navigation">
@@ -38,7 +40,7 @@
 
 						<div class="column is-6-tablet is-5-desktop is-4-widescreen">
 
-							<form class="box my-6" action="/auth/login" method="post">
+							<form id="form" class="box my-6" action="http://127.0.0.1:3000/login" method="post">
 								<h1 class="title">Please Login</h1>
 
 								<div class="field">

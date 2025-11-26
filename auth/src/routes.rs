@@ -84,7 +84,7 @@ pub async fn register(_request: web::HttpRequest, form: web::types::Form<Registe
     }
 
     return match database::create_user(form.username, form.password1) {
-        true => web::HttpResponse::PermanentRedirect().header("Location", "http://127.0.0.1:4000/login").finish(),
+        true => web::HttpResponse::PermanentRedirect().body("<script>location.href='http://127.0.0.1:4000/login'</script>"),
 
         false => web::HttpResponse::Unauthorized().finish()
     };
