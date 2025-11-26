@@ -47,7 +47,7 @@ where
                 },
                 _ => {
                     Ok(req.into_response(
-                    HttpResponse::Found()
+                    HttpResponse::PermanentRedirect()
                         .header(http::header::LOCATION, "/login")
                         .finish()
                         .into_body(),
