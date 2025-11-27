@@ -1,0 +1,13 @@
+Running 5m test @ http://127.0.0.1:4000/json/eduardo/104924087
+  4 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    57.81ms   27.45ms 464.50ms   81.19%
+    Req/Sec    35.46     10.01    70.00     71.82%
+  Latency Distribution
+     50%   52.30ms
+     75%   65.30ms
+     90%   83.21ms
+     99%  168.88ms
+  42350 requests in 5.00m, 112.80MB read
+Requests/sec:    141.13
+Transfer/sec:    384.93KB
